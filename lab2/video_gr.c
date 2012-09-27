@@ -70,13 +70,12 @@ void * vg_init(unsigned long mode) {
 int vg_fill(unsigned long color) {
 	int i ;
 
-	char *apontador;
-	apontador = video_mem;
+	ptr= video_mem;
 
 	for(i=0 ; i<(h_res*v_res) ; i++)
 	{
-		*apontador=color ;
-		apontador++ ;
+		*ptr=color ;
+		ptr++ ;
 	}
 
 
@@ -84,19 +83,24 @@ int vg_fill(unsigned long color) {
 }
 
 int vg_set_pixel(unsigned long x, unsigned long y, unsigned long color) {
-/*
-	ptr = video_mem + (x-1)*v_res + y ;
+
+	ptr = video_mem + x*h_res + y;
 	*ptr = color ;
 
-	return 0;*/
+	return 0;
 }
 
 long vg_get_pixel(unsigned long x, unsigned long y) {
-	return 0;
+
+	long result;
+	ptr = video_mem + (x-1)*v_res + y ;
+	result = *ptr;
+	return result;
 }
 
 int vg_draw_line(unsigned long xi, unsigned long yi, 
 		 unsigned long xf, unsigned long yf, unsigned long color) {
+
 	return 0;
 }
 
