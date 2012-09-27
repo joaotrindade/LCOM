@@ -11,7 +11,7 @@
 #define PB2OFF(x) ((x) & 0x0FFFF)
 
 int vbe_get_mode_info(unsigned short mode, vbe_mode_info_t *vmi_p) {
-  
+  /*
 	struct reg86u r;
 	r.u.w.ax = 0x4F01;
 	//  translate the buffer linear
@@ -23,7 +23,7 @@ int vbe_get_mode_info(unsigned short mode, vbe_mode_info_t *vmi_p) {
 	if( sys_int86(&r) != OK ) {
 		printf("Error sys_int86 call /n");
 		return 1;
-	}
+	}*/
   return 0;
 }
 

@@ -10,11 +10,11 @@
 
 #define VRAM_PHYS_ADDR    0xD0000000
 #define H_RES             1024
-#define V_RES		  768
+#define V_RES		  	  768
 #define BITS_PER_PIXEL	  8
 
 /* Private global variables */
-
+char *ptr ;
 static char *video_mem;		/* Process address to which VRAM is mapped */
 
 static unsigned h_res;		/* Horizontal screen resolution in pixels */
@@ -23,27 +23,72 @@ static unsigned bits_per_pixel; /* Number of VRAM bits per pixel */
 
 void * vg_init(unsigned long mode) {
 
-	struct reg86u r;
+	struct reg86u reg;
 
-	r.u.w.ax = 0x4F02; // VBE call, function 02 -- set VBE mode
-	r.u.w.bx = 1<<14|0x105; // set bit 14: linear framebuffer
-	r.u.b.intno = 0x10;
-	sys_int86(&r);
 
-	if( sys_int86(& r) != OK ) {
+	  sef_startup();
+
+	reg.u.w.ax = 0x4F02; // VBE call, function 02 -- set VBE mode
+	reg.u.w.bx = 1<<14|0x105; // set bit 14: linear framebuffer
+	reg.u.b.intno = 0x10;
+	sys_int86(&reg);
+
+	if( sys_int86(& reg) != OK ) {
 		printf("set_vbe_mode: sys_int86() failed \n");
-		return 1;
+		return NULL;
 	}
 
-	return NULL;
+	h_res = H_RES;
+	v_res = V_RES;
+	bits_per_pixel = BITS_PER_PIXEL;
+
+	int r;
+	struct mem_range mr;
+
+	  /* Allow memory mapping */
+
+	  mr.mr_base = (phys_bytes)VRAM_PHYS_ADDR;
+	  mr.mr_limit = mr.mr_base + (H_RES*V_RES);
+
+	  if( OK != (r = sys_privctl(SELF, SYS_PRIV_ADD_MEM, &mr)))
+		  panic("video_txt: sys_privctl (ADD_MEM) failed: %d\n", r);
+
+	  /* Map memory */
+
+	  video_mem = vm_map_phys(SELF, (void *)mr.mr_base, (H_RES*V_RES));
+
+	  if(video_mem == MAP_FAILED)
+		  panic("video_txt couldn't map video memory");
+
+
+
+	return (void *)VRAM_PHYS_ADDR;
+
+
 }
 
 int vg_fill(unsigned long color) {
+	int i ;
+
+	char *apontador;
+	apontador = video_mem;
+
+	for(i=0 ; i<(h_res*v_res) ; i++)
+	{
+		*apontador=color ;
+		apontador++ ;
+	}
+
+
 	return 0;
 }
 
 int vg_set_pixel(unsigned long x, unsigned long y, unsigned long color) {
-	return 0;
+/*
+	ptr = video_mem + (x-1)*v_res + y ;
+	*ptr = color ;
+
+	return 0;*/
 }
 
 long vg_get_pixel(unsigned long x, unsigned long y) {
