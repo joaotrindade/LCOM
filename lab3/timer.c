@@ -2,7 +2,6 @@
 #include <minix/drivers.h>
 #include <minix/com.h>
 #include "i8254.h"
-int timeCounter=0;
 int hook = 2;
 
 int timer_set_square(unsigned long timer, unsigned long freq) {
@@ -35,7 +34,7 @@ int timer_unsubscribe_int() {
 
 void timer_int_handler() {
 	timeCounter++;
-	if ((timeCounter % 60) == 0) printf("%d", timeCounter/60);
+	//if ((timeCounter % 60) == 0) printf("%d", timeCounter/60);
 	//printf("%d\n", timeCounter);
 }
 
