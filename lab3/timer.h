@@ -1,6 +1,9 @@
 #ifndef __TIMER_H
 #define __TIMER_H
 
+
+int timeCounter=0;
+
 /** @defgroup timer timer
  * @{
  *
