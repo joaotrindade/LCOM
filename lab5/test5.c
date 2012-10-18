@@ -27,13 +27,13 @@ int test_packet()
 	int ipc_status;
 	message msg;
 
-	/*subscrever insterrupções*/
+	/*subscrever insterrupï¿½ï¿½es*/
 	sys_irqsetpolicy(KBD_IRQ1, IRQ_REENABLE | IRQ_EXCLUSIVE, &hook_id);
 	sys_irqenable(&hook_id);
 
 	sys_inb(WRITE_REG, 0xD4) ;
 
-	while(time_counter<DURATION)
+	while(byte_counter<DURATION)
 	{
 		if(count==3)
 			count=0;
