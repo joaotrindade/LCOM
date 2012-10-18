@@ -10,14 +10,17 @@
 #define KBC_CMD			0x64
 #define MOUSE_CMD		0x60
 
+#define WRITE_REG  0x64
+
 #define KBD_IRQ1			1
 
 
 int test_packet()
 {
+
 	unsigned char packet[3] ; 	/* guarda bytes do rato*/
 	unsigned short count = 0 ;		/* identifica o byte recebido*/
-	int time_counter = 0 ;				/* conta o tempo de execucao*/
+	int byte_counter = 0 ;				/* conta o numero de bytes recebidos */
 
 	unsigned long scancode ;
 	int hook_id = 0x00;
@@ -28,14 +31,14 @@ int test_packet()
 	sys_irqsetpolicy(KBD_IRQ1, IRQ_REENABLE | IRQ_EXCLUSIVE, &hook_id);
 	sys_irqenable(&hook_id);
 
-	sys_inb(0x64, 0xD4) ;
+	sys_inb(WRITE_REG, 0xD4) ;
 
 	while(time_counter<DURATION)
 	{
 		if(count==3)
 			count=0;
 
-		if( driver_receive(ANY, &msg, &ipc_status) != 0)
+		if( driver_receive(ANY, &msg, &ipc_status) != 0 )
 		{
 			if(is_ipc_policy(ipc_status) && ENDPOINT_P(msg.m_source) == HARDWARE )
 				{
@@ -45,7 +48,7 @@ int test_packet()
 				}
 		}
 		count++ ;
-		time_counter++ ; /*errado! usar funcao do timer para contar os segundos*/
+		byte_counter++ ;
 	}
 
 	sys_irqdisable(&hook_id);
