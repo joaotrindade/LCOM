@@ -40,7 +40,7 @@ int test_packet()
 
 		if( driver_receive(ANY, &msg, &ipc_status) != 0 )
 		{
-			if(is_ipc_policy(ipc_status) && ENDPOINT_P(msg.m_source) == HARDWARE )
+			if(is_ipc_notify(ipc_status) && _ENDPOINT_P(msg.m_source) == HARDWARE )
 				{
 					sys_outb(0x60 , &scancode) ;
 					packet[count]=scancode ;
