@@ -91,7 +91,7 @@ int test_date(){
 
 	unsigned long regB, regC;
 	int UFbit, finish;
-	unsigned long dia, mes, ano, hora, minuto, segundo;
+	unsigned long dia, mes, ano, hora, minuto, segundo, dia_semana;
 	int ipc_status ;
 	message msg ;
 	UFbit = 0;
@@ -159,6 +159,9 @@ int test_date(){
 	sys_outb(RTC_ADDR_REG, 4);
 	sys_inb(RTC_DATA_REG, &hora);
 
+	sys_outb(RTC_ADDR_REG, 6);
+	sys_inb(RTC_DATA_REG, &dia_semana);
+
 	sys_outb(RTC_ADDR_REG, 7);
 	sys_inb(RTC_DATA_REG, &dia);
 
@@ -172,6 +175,15 @@ int test_date(){
 
 
 	printf("Hora: %x : %x : %x \n", hora, minuto, segundo);
+
+	if(dia_semana == 0x01) printf("Quinta Feira,");
+	if(dia_semana == 0x02) printf("Sexta Feira,");
+	if(dia_semana == 0x03) printf("Sabado,");
+	if(dia_semana == 0x04) printf("Domingo,");
+	if(dia_semana == 0x05) printf("Segunda Feira,");
+	if(dia_semana == 0x06) printf("Terca Feira,");
+	if(dia_semana == 0x07) printf("Quarta Feira,");
+
 	printf("Data: %x - %x - %x \n", dia, mes, ano);
 
 
