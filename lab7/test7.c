@@ -201,3 +201,37 @@ int test_set(unsigned short base_addr, unsigned long bits, unsigned long stop,
 
 	return 0;
 }
+
+int test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits, 	unsigned long stop, long parity, unsigned long rate, int stringc, char *strings[])
+{
+	unsigned long lsr,input;
+	char input_char;
+	int ready = 0;
+
+	if (tx == 0)
+	{
+		//RECEIVING MODE
+		test_set(base_addr, bits, stop, parity, rate);
+
+		sys_inb(base_addr + LSR, &lsr);
+		ready = lsr | BIT5 ;
+
+		while(ready == 0)
+		{
+			sys_inb(base_addr + LSR, &lsr);
+			ready = lsr | BIT5;
+		}
+
+		sys_inb(base_addr + RBR, &input);
+		input_char = (char)input;
+		while(input_char != '.')
+		{
+			printf("%c",input_char);
+			sys_inb(base_addr + RBR, &input);
+			input_char = (char)input;
+		}
+	}
+
+	return 0;
+
+}
