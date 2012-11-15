@@ -235,3 +235,39 @@ int test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits, 	u
 	return 0;
 
 }
+
+
+int test_int(unsigned short base_addr, unsigned char tx, unsigned long bits, unsigned long stop, long parity, unsigned long rate, int stringc, char *strings[])
+{
+	unsigned long ier, iir;
+	int i = 0;
+
+	if (tx != 0)
+	{
+		// SENDING MODE
+		test_set(base_addr, bits, stop, parity, rate);
+
+		//Enable Transmitter Empty Interrupt
+		sys_inb(base_addr+IER, &ier);
+		ier = ier | BIT1;
+		sys_outb(base_addr+IER, ier);
+
+		while(stringc != 0)
+		{
+			sys_inb(base_addr + IIR, &iir);
+			while(iir & BIT0) // interruption pending
+			{
+				if (iir & BIT1) // Transmitter Empty
+				{
+					sys_outb(base_addr+RBR, *strings++);
+				}
+
+			}
+
+			stringc--;
+		}
+
+	}
+
+
+}

@@ -7,7 +7,7 @@ int test_set(unsigned short base_addr, unsigned long bits, unsigned long stop,
 
 int test_poll(unsigned short base_addr, unsigned char tx, unsigned long bits, 	unsigned long stop, long parity, unsigned long rate, int stringc, char *strings[]);
 
-int test_int(/* details to be provided */) ;
+int test_int(unsigned short base_addr, unsigned char tx, unsigned long bits, unsigned long stop, long parity, unsigned long rate, int stringc, char *strings[]);
 
 int test_fifo(unsigned short base_addr, unsigned char tx, unsigned long bits, unsigned long stop, long parity, unsigned long rate, int stringc, char *strings[]);
 
