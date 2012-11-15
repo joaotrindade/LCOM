@@ -5,8 +5,7 @@
 #include "test7.h"
 
 
-#define COM1 0x3F8
-#define COM2 0x2F8
+
 #define RBR 0
 #define IER 1
 #define IIR 2
@@ -104,7 +103,7 @@ int test_conf(unsigned short base_addr)
 	printf("DLL: 0x%x \n", dll);	
 
 	bitrate= 115200 / ( (dll * 256) + dlm);
-	printf("Bit-rate: %d",bitrate);
+	printf("Bit-rate: %d \n",bitrate);
 
 	sys_inb(base_addr+LCR, &dlab);
 	dlab = dlab&0x7F;
@@ -153,3 +152,52 @@ int test_conf(unsigned short base_addr)
     return 0;
 }
 
+int test_set(unsigned short base_addr, unsigned long bits, unsigned long stop,
+	     long parity, /* -1: none, 0: even, 1: odd */
+	     unsigned long rate){
+
+	unsigned long registo, rate_temp, rate_bit, bit_signed, bit_unsigned;
+
+	registo = 0;
+
+	if(bits == 6) registo = registo | BIT0;
+	else
+	{
+		if(bits == 7) registo= registo | BIT1;
+		else
+		{
+			if (bits == 8)
+			{
+				registo = registo | BIT0;
+				registo = registo | BIT1;
+			}
+		}
+	}
+
+	if (stop == 0) registo = registo | BIT2;
+
+	if (parity != -1)
+	{
+		if (parity == 0)
+		{
+			registo = registo | BIT3;
+			registo = registo | BIT4;
+		}
+		if(parity == 1)
+		{
+			registo = registo | BIT3;
+
+		}
+	}
+
+	rate_temp = 115200 / rate;
+
+	bit_signed = rate / 256;
+	bit_unsigned= rate % 256;
+
+	sys_outb(base_addr + LCR, registo);
+	sys_outb(base_addr + DLL, bit_unsigned);
+	sys_outb(base_addr+ DLM, bit_signed);
+
+	return 0;
+}
