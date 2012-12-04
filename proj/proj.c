@@ -10,6 +10,14 @@ int spaceship_position;
 static int hook= 0;
 unsigned char scancode;
 
+typedef struct {
+	int verticalPos;
+	int horizontalPos;
+} missile;
+
+
+
+
 
 void drawMainShip(int verticalPos)
 {
@@ -28,6 +36,31 @@ void drawMainShip(int verticalPos)
 
 }
 
+void drawMissile(missile input)
+{
+	int width, height, x, y;
+	char *missile_map;
+	//printf("entrou");
+	missile_map =  read_xpm(missil1, &width, &height);
+	//printf("saiu");
+
+	//printf("vertical: %d, horizontal: %d \n \n", input.verticalPos, input.horizontalPos);
+
+
+
+	for(x = input.verticalPos; x < height + input.verticalPos ; x++)
+	{
+		for(y = input.horizontalPos; y <width+input.horizontalPos; y++, missile_map++)
+		{
+			vg_set_pixel(y,x,*missile_map);
+			//printf("entrou\n");
+
+		}
+	}
+
+	//printf("X: %d | Y:%d \n",x,y);
+}
+
 
 int main(){
 	spaceship_position = 0;
@@ -37,7 +70,18 @@ int main(){
 	message msg;
 	esc_found = 0;
 
+
+
+	//missile *a1 = malloc(sizeof(struct missile));
+	missile a1;
+	a1.horizontalPos = 20;
+	a1.verticalPos = 20;
+	//printf("entrou\n &d     %d", a1.horizontalPos, a1.verticalPos);
+
 	vg_init(0x105);
+
+
+
 	drawMainShip(spaceship_position);
 	irq_set = kbc_subscribe_int();
 
@@ -59,15 +103,16 @@ int main(){
 							}
 							if (scancode == 0x48) // FOUND SETA CIMA
 							{
-								if (spaceship_position - 10 > UPPER_LIMIT)
+								if (spaceship_position - 20 > UPPER_LIMIT)
 								{
-									vg_fill(0x00);
+									vg_eraseShip(0x00);
+
 									spaceship_position-= 10;
 									drawMainShip(spaceship_position);
 								}
 								else
 								{
-									vg_fill(0x00);
+									vg_eraseShip(0x00);
 									spaceship_position = 0;
 									drawMainShip(spaceship_position);
 								}
@@ -76,21 +121,28 @@ int main(){
 							}
 							if (scancode == 0x50) // FOUND SETA BAIXO
 							{
-								if (spaceship_position + 10 < LOWER_LIMIT)
+								if (spaceship_position + 20 < LOWER_LIMIT)
 								{
-									vg_fill(0x00);
+									vg_eraseShip(0x00);
 									spaceship_position+=10;
 									drawMainShip(spaceship_position);
 
 								}
 								else
 								{
-									vg_fill(0x00);
+									vg_eraseShip(0x00);
 									spaceship_position = LOWER_LIMIT;
 									drawMainShip(spaceship_position);
 
 								}
 
+							}
+
+							if (scancode == 0x39) // FOUND B.ESPACOS
+							{
+								a1.horizontalPos = 150;
+								a1.verticalPos = spaceship_position + 50;
+								drawMissile(a1);
 							}
 						}
 				}

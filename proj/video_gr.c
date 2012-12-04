@@ -26,7 +26,7 @@ void * vg_init(unsigned long mode) {
 	struct reg86u reg;
 
 
-	  sef_startup();
+	sef_startup();
 
 	reg.u.w.ax = 0x4F02; // VBE call, function 02 -- set VBE mode
 	reg.u.w.bx = 1<<14|0x105; // set bit 14: linear framebuffer
@@ -77,6 +77,31 @@ int vg_fill(unsigned long color) {
 		*ptr=color ;
 		ptr++ ;
 	}
+
+
+	return 0;
+}
+
+int vg_eraseShip(unsigned long color) {
+	int x, y ;
+	char *pointer;
+	pointer = video_mem;
+
+
+	for(y = 0 ; y < v_res; y++)
+	{
+		for(x = 0; x < h_res; x++)
+		{
+			if(x < 110) *pointer = color;
+			pointer++;
+		}
+	}
+/*
+	for(i=0 ; i<(h_res*v_res) ; i++)
+	{
+		*ptr=color ;
+		ptr++ ;
+	}*/
 
 
 	return 0;

@@ -38,7 +38,7 @@ long read_scancode() {
 
 }
 
-/*
+
 int test_scan(void) {
 
 	int ipc_status, irq_set, esc_found;
@@ -83,7 +83,7 @@ int test_scan(void) {
 
 	}
 	kbc_unsubscribe_int();
-}*/
+}
 
 int test_leds(unsigned short n, unsigned short *leds) {
     /* To be completed */
