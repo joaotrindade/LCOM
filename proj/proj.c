@@ -41,7 +41,7 @@ void drawMissile(missile input)
 	int width, height, x, y;
 	char *missile_map;
 	//printf("entrou");
-	missile_map =  read_xpm(missil1, &width, &height);
+	missile_map =  read_xpm(missil2, &width, &height);
 	//printf("saiu");
 
 	//printf("vertical: %d, horizontal: %d \n \n", input.verticalPos, input.horizontalPos);
@@ -70,13 +70,17 @@ int main(){
 	message msg;
 	esc_found = 0;
 
-
+	//sef_startup();
 
 	//missile *a1 = malloc(sizeof(struct missile));
 	missile a1;
 	a1.horizontalPos = 20;
 	a1.verticalPos = 20;
 	//printf("entrou\n &d     %d", a1.horizontalPos, a1.verticalPos);
+
+
+	//drawMissile(a1);
+
 
 	vg_init(0x105);
 
