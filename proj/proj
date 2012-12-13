@@ -1,0 +1,32 @@
+service proj 
+{ 
+	system 
+		UMAP # 14 
+		INT86 # 20 
+		PRIVCTL 
+		READBIOS 
+		DEVIO
+		IRQCTL
+	; 
+	ipc 
+		SYSTEM # to retrieve system information 
+		rs # for service initialization 
+		vm # to map video RAM 
+		pm # for malloc, if needed 
+		vfs 
+		; 
+	io
+		40:4	#i8254 ports
+		60		
+		61	# port for speaker control
+		64		
+		;	
+
+	irq
+		0	#timer 0 irq
+		1	# KBD IRQ		
+		;
+
+	uid 0;
+
+ };

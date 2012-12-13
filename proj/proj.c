@@ -2,9 +2,13 @@
 #include "video_gr.h"
 #include "pixmap.h"
 #include "KBC.h"
+#include "timer.h"
 #define WAIT_TIME_S 5
 #define UPPER_LIMIT 2
 #define LOWER_LIMIT 668
+#define N_MAX_MISSEIS 50
+
+
 
 int spaceship_position;
 static int hook= 0;
@@ -16,32 +20,34 @@ typedef struct {
 } missile;
 
 
+missile vetor_misseis[N_MAX_MISSEIS];
 
 
-
-void drawMainShip(int verticalPos)
+void drawMainShip(int verticalPos, int erase)
 {
+	// ERASE : 1 APAGA
 	int width, height, x, y;
 	char *spaceship_map;
-	spaceship_map = read_xpm(spaceship, &width, &height);
+	spaceship_map = (char*)read_xpm(spaceship, &width, &height);
 
 		for(x = verticalPos; x < height+verticalPos ; x++)
 		{
 			for(y = 0; y <width  ; y++, spaceship_map++)
 			{
-				vg_set_pixel(y,x,*spaceship_map);
-
+				if(erase == 0) vg_set_pixel(y,x,*spaceship_map);
+				else vg_set_pixel(y,x,0x00);
 			}
 		}
 
 }
 
-void drawMissile(missile input)
+void drawMissile(missile input, int erase)
 {
+	// ERASE : 1 APAGA
 	int width, height, x, y;
 	char *missile_map;
 	//printf("entrou");
-	missile_map =  read_xpm(missil2, &width, &height);
+	missile_map =  (char*)read_xpm(missil2, &width, &height);
 	//printf("saiu");
 
 	//printf("vertical: %d, horizontal: %d \n \n", input.verticalPos, input.horizontalPos);
@@ -52,7 +58,8 @@ void drawMissile(missile input)
 	{
 		for(y = input.horizontalPos; y <width+input.horizontalPos; y++, missile_map++)
 		{
-			vg_set_pixel(y,x,*missile_map);
+			if(erase == 0) vg_set_pixel(y,x,*missile_map);
+			else vg_set_pixel(y,x,0x00);
 			//printf("entrou\n");
 
 		}
@@ -62,31 +69,70 @@ void drawMissile(missile input)
 }
 
 
+int actualizaMisseis(missile vetor_misseis[], int last_index){
+	int i,j;
+	int new_last_index = last_index;
+	for(i = 1; i < last_index;i++)
+	{
+		//if (vetor_misseis[i].horizontalPos < 800) vetor_misseis[i].horizontalPos+=10;
+		drawMissile(vetor_misseis[i],1);
+		vetor_misseis[i].horizontalPos+=10;
+	}
+	/*for(i = 0; i < last_index;i++)
+	{
+		if (vetor_misseis[i].horizontalPos > 800)
+		{
+			for(j = i; j < last_index-1; j++)
+			{
+				vetor_misseis[j] = vetor_misseis[j+1];
+				last_index--;
+			}
+		}
+	}*/
+/*
+	for(i = 1; i< new_last_index; i++)
+	{
+		if (vetor_misseis[i].horizontalPos > 800)
+		{
+			for(j = i; j < new_last_index-1; j++)
+			{
+				vetor_misseis[j] = vetor_misseis[j+1];
+				new_last_index--;
+			}
+		}
+	}*/
+
+	return new_last_index;
+}
+
 int main(){
 	spaceship_position = 0;
 
 
 	int ipc_status, irq_set, esc_found;
+	int last_missile_index;
+	int time_count;
+	int missil_i;
+	last_missile_index = 1;
 	message msg;
 	esc_found = 0;
+	time_count = 0;
 
 	//sef_startup();
 
-	//missile *a1 = malloc(sizeof(struct missile));
 	missile a1;
-	a1.horizontalPos = 20;
-	a1.verticalPos = 20;
+
 	//printf("entrou\n &d     %d", a1.horizontalPos, a1.verticalPos);
 
 
 	//drawMissile(a1);
 
-
+	timer_subscribe_int();
 	vg_init(0x105);
 
 
 
-	drawMainShip(spaceship_position);
+	//drawMainShip(spaceship_position);
 	irq_set = kbc_subscribe_int();
 
 	while(!esc_found) {
@@ -109,16 +155,15 @@ int main(){
 							{
 								if (spaceship_position - 20 > UPPER_LIMIT)
 								{
-									vg_eraseShip(0x00);
-
+									drawMainShip(spaceship_position,1);
 									spaceship_position-= 10;
-									drawMainShip(spaceship_position);
+									drawMainShip(spaceship_position,0);
 								}
 								else
 								{
-									vg_eraseShip(0x00);
+									drawMainShip(spaceship_position,1);
 									spaceship_position = 0;
-									drawMainShip(spaceship_position);
+									drawMainShip(spaceship_position,0);
 								}
 
 
@@ -127,16 +172,16 @@ int main(){
 							{
 								if (spaceship_position + 20 < LOWER_LIMIT)
 								{
-									vg_eraseShip(0x00);
+									drawMainShip(spaceship_position,1);
 									spaceship_position+=10;
-									drawMainShip(spaceship_position);
+									drawMainShip(spaceship_position,0);
 
 								}
 								else
 								{
-									vg_eraseShip(0x00);
+									drawMainShip(spaceship_position,1);
 									spaceship_position = LOWER_LIMIT;
-									drawMainShip(spaceship_position);
+									drawMainShip(spaceship_position,0);
 
 								}
 
@@ -146,17 +191,39 @@ int main(){
 							{
 								a1.horizontalPos = 150;
 								a1.verticalPos = spaceship_position + 50;
-								drawMissile(a1);
+								vetor_misseis[last_missile_index] = a1;
+								last_missile_index++;
+								drawMissile(a1,0);
 							}
 						}
+						if (msg.NOTIFY_ARG & 0x4)
+						{
+							time_count++;
+							if (time_count == 2)
+							{
+								//last_missile_index = actualizaMisseis(vetor_misseis,last_missile_index);
+								//a1.horizontalPos = 250;
+								//a1.verticalPos = 250;
+								actualizaMisseis(vetor_misseis,last_missile_index);
+								if (last_missile_index > 1)
+								for(missil_i = 1; missil_i < last_missile_index; missil_i++)
+								{
+									drawMissile(vetor_misseis[missil_i],0);
+								}
+								time_count = 0;
+							}
+						}
+
 				}
 		}
 
 	}
-
+	//printf("Saiu do Ciclo\n");
+	timer_unsubscribe_int();
+	//printf("Fez unsubscribe ao timer\n");
 	kbc_unsubscribe_int();
-
-	sleep(2);
+	//printf("Fez unsubscribe ao KBC\n");
+	//sleep(2);
 	vg_exit();
 
 
@@ -167,5 +234,6 @@ int main(){
 	//drawMainShip(spaceship_position);
 	//sleep(15);
 	//vg_exit(); /* Return to text mode */
+	//printf("Saiu\n");
 	return 0;
 }
