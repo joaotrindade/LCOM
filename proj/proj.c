@@ -11,6 +11,7 @@
 
 
 int spaceship_position;
+int last_missile_index;
 static int hook= 0;
 unsigned char scancode;
 
@@ -18,6 +19,12 @@ typedef struct {
 	int verticalPos;
 	int horizontalPos;
 } missile;
+
+typedef struct {
+	int verticalPos;
+	int horizontalPos;
+} enemy;
+
 
 
 missile vetor_misseis[N_MAX_MISSEIS];
@@ -46,7 +53,7 @@ void drawMissile(missile input, int erase)
 	// ERASE : 1 APAGA
 	int width, height, x, y;
 	char *missile_map;
-	//printf("entrou");
+	printf("entrou");
 	missile_map =  (char*)read_xpm(missil2, &width, &height);
 	//printf("saiu");
 
@@ -68,55 +75,86 @@ void drawMissile(missile input, int erase)
 	//printf("X: %d | Y:%d \n",x,y);
 }
 
+void drawEnemy(enemy input, int erase)
+{
+	// ERASE : 1 APAGA
+	int width, height, x, y;
+	char *enemy;
+	enemy = (char*)read_xpm(placeholder, &width, &height);
 
-int actualizaMisseis(missile vetor_misseis[], int last_index){
-	int i,j;
-	int new_last_index = last_index;
-	for(i = 1; i < last_index;i++)
+	for(x = input.verticalPos; x < height + input.verticalPos ; x++)
+		{
+			for(y = input.horizontalPos; y <width+input.horizontalPos; y++, enemy++)
+			{
+				if(erase == 0) vg_set_pixel(y,x,*enemy);
+				else vg_set_pixel(y,x,0x00);
+				//printf("entrou\n");
+
+			}
+		}
+}
+
+void checkColisao(missile vetor_misseis[]){
+	int i, j;
+	// vertical + 7
+	// horizonal + 50
+	for(i = 1; i < last_missile_index;i++)
+	{
+		if (vg_get_pixel(vetor_misseis[i].verticalPos+40, vetor_misseis[i].horizontalPos+7 ) != 0)
+		{
+			enemy teste1;
+			teste1.horizontalPos = 600;
+			teste1.verticalPos = 150;
+			drawEnemy(teste1,0);
+
+		}
+
+	}
+}
+
+int actualizaMisseis(missile vetor_misseis[]){
+	int i,j, removed;
+	removed = 0;
+
+
+	for(i = 1; i < last_missile_index;i++)
 	{
 		//if (vetor_misseis[i].horizontalPos < 800) vetor_misseis[i].horizontalPos+=10;
 		drawMissile(vetor_misseis[i],1);
 		vetor_misseis[i].horizontalPos+=10;
 	}
-	/*for(i = 0; i < last_index;i++)
-	{
-		if (vetor_misseis[i].horizontalPos > 800)
-		{
-			for(j = i; j < last_index-1; j++)
-			{
-				vetor_misseis[j] = vetor_misseis[j+1];
-				last_index--;
-			}
-		}
-	}*/
-/*
-	for(i = 1; i< new_last_index; i++)
-	{
-		if (vetor_misseis[i].horizontalPos > 800)
-		{
-			for(j = i; j < new_last_index-1; j++)
-			{
-				vetor_misseis[j] = vetor_misseis[j+1];
-				new_last_index--;
-			}
-		}
-	}*/
 
-	return new_last_index;
+
+	for(i = 1; i < last_missile_index;i++)
+	{
+		if (vetor_misseis[i].horizontalPos > 800)
+		{
+			for(j = i-1; j < last_missile_index-1 ; j++)
+			{
+				vetor_misseis[j] = vetor_misseis[j+1];
+			}
+			//removed++;
+			last_missile_index--;
+		}
+	}
+	//last_missile_index -= removed;
+
 }
+
 
 int main(){
 	spaceship_position = 0;
 
 
 	int ipc_status, irq_set, esc_found;
-	int last_missile_index;
-	int time_count;
+
+	int time_count,refresh_count,enemy_count;
 	int missil_i;
 	last_missile_index = 1;
 	message msg;
 	esc_found = 0;
-	time_count = 0;
+	refresh_count = 0;
+	enemy_count = 0;
 
 	//sef_startup();
 
@@ -198,19 +236,31 @@ int main(){
 						}
 						if (msg.NOTIFY_ARG & 0x4)
 						{
-							time_count++;
-							if (time_count == 2)
+
+							refresh_count++;
+							enemy_count++;
+							if (refresh_count == 2)
 							{
 								//last_missile_index = actualizaMisseis(vetor_misseis,last_missile_index);
 								//a1.horizontalPos = 250;
 								//a1.verticalPos = 250;
-								actualizaMisseis(vetor_misseis,last_missile_index);
+
+								actualizaMisseis(vetor_misseis);
+								checkColisao(vetor_misseis);
 								if (last_missile_index > 1)
 								for(missil_i = 1; missil_i < last_missile_index; missil_i++)
 								{
 									drawMissile(vetor_misseis[missil_i],0);
 								}
-								time_count = 0;
+								refresh_count = 0;
+							}
+							if(enemy_count == 5)
+							{
+								enemy teste;
+								teste.horizontalPos = 600;
+								teste.verticalPos = 50;
+								drawEnemy(teste,0);
+
 							}
 						}
 
