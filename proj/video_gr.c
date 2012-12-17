@@ -124,8 +124,11 @@ int vg_set_pixel(unsigned long x, unsigned long y, unsigned long color) {
 long vg_get_pixel(unsigned long x, unsigned long y) {
 
 	long result;
-	ptr = video_mem + (x-1)*v_res + y ;
-	result = *ptr;
+	char *pointer;
+	pointer = video_mem;
+//	pointer = video_mem + (x-1)*v_res + y ;
+	pointer = (pointer + (y*H_RES) + x);
+	result = *pointer;
 	return result;
 }
 

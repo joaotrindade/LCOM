@@ -7,11 +7,13 @@
 #define UPPER_LIMIT 2
 #define LOWER_LIMIT 668
 #define N_MAX_MISSEIS 50
+#define N_MAX_INIMIGOS 50
 
 
 
 int spaceship_position;
 int last_missile_index;
+int pontuacao = 0;
 static int hook= 0;
 unsigned char scancode;
 
@@ -28,6 +30,7 @@ typedef struct {
 
 
 missile vetor_misseis[N_MAX_MISSEIS];
+enemy vetor_inimigos[N_MAX_INIMIGOS];
 
 
 void drawMainShip(int verticalPos, int erase)
@@ -100,10 +103,10 @@ void checkColisao(missile vetor_misseis[]){
 	// horizonal + 50
 	for(i = 1; i < last_missile_index;i++)
 	{
-		if (vg_get_pixel(vetor_misseis[i].verticalPos+40, vetor_misseis[i].horizontalPos+7 ) != 0)
+		if (vg_get_pixel(vetor_misseis[i].horizontalPos + 50,vetor_misseis[i].verticalPos + 7) != 0)
 		{
 			enemy teste1;
-			teste1.horizontalPos = 600;
+			teste1.horizontalPos = 850;
 			teste1.verticalPos = 150;
 			drawEnemy(teste1,0);
 
@@ -258,7 +261,7 @@ int main(){
 							{
 								enemy teste;
 								teste.horizontalPos = 600;
-								teste.verticalPos = 50;
+								teste.verticalPos = 550;
 								drawEnemy(teste,0);
 
 							}
