@@ -10,9 +10,12 @@
 #define N_MAX_INIMIGOS 50
 
 
-
+void actualizaEnemy(int move);
 int spaceship_position;
-int last_missile_index;
+int last_missile_index, last_enemy_index, total_enemies, createdEnemies ;
+createdEnemies = 0;
+int enemy_positions[N_MAX_INIMIGOS]={0,200,100,300,400,500};
+int enemy_height = 100;
 int pontuacao = 0;
 static int hook= 0;
 unsigned char scancode;
@@ -56,7 +59,7 @@ void drawMissile(missile input, int erase)
 	// ERASE : 1 APAGA
 	int width, height, x, y;
 	char *missile_map;
-	printf("entrou");
+	//printf("entrou");
 	missile_map =  (char*)read_xpm(missil2, &width, &height);
 	//printf("saiu");
 
@@ -98,17 +101,34 @@ void drawEnemy(enemy input, int erase)
 }
 
 void checkColisao(missile vetor_misseis[]){
-	int i, j;
+	int i, j,k;
 	// vertical + 7
 	// horizonal + 50
 	for(i = 1; i < last_missile_index;i++)
 	{
 		if (vg_get_pixel(vetor_misseis[i].horizontalPos + 50,vetor_misseis[i].verticalPos + 7) != 0)
 		{
-			enemy teste1;
-			teste1.horizontalPos = 850;
-			teste1.verticalPos = 150;
-			drawEnemy(teste1,0);
+			//enemy teste1;
+			//teste1.horizontalPos = 850;
+			//teste1.verticalPos = 150;
+			//drawEnemy(teste1,0);
+
+			//VER QUAL É O INDICE DO VECTOR A QUE CORRESPONDE A COLISAO
+			for(j = 1; j < last_enemy_index; j++ )
+			{
+				if ( ( vetor_misseis[i].verticalPos + 7 > vetor_inimigos[j].verticalPos ) && ( vetor_misseis[i].verticalPos + 7 < vetor_inimigos[j].verticalPos + enemy_height ) )
+				{
+					printf("Detectou colisao parametrizada enemyindex : %d \n",j);
+					drawEnemy(vetor_inimigos[j],1);
+					for(k = j-1; k < last_enemy_index-1 ; k++)
+					{
+						vetor_inimigos[k] = vetor_inimigos[k+1];
+					}
+
+					last_enemy_index--;
+				}
+			}
+			actualizaEnemy(0);
 
 		}
 
@@ -144,6 +164,47 @@ int actualizaMisseis(missile vetor_misseis[]){
 
 }
 
+void actualizaEnemy(int move){
+	// MOVE = 1 - MOVIMENTA O INIMIGO
+	int i,j, removed;
+	removed = 0;
+
+	for(i = 1; i < last_enemy_index;i++)
+	{
+		//if (vetor_misseis[i].horizontalPos < 800) vetor_misseis[i].horizontalPos+=10;
+		drawEnemy(vetor_inimigos[i],1);
+		if(move == 1) vetor_inimigos[i].horizontalPos-=20;
+		drawEnemy(vetor_inimigos[i],0);
+	}
+
+/*
+	for(i = 1; i < last_enemy_index;i++)
+	{
+		if (vetor_inimigos[i].horizontalPos < 10)
+		{
+			for(j = i-1; j < last_enemy_index-1 ; j++)
+			{
+				vetor_inimigos[j] = vetor_inimigos[j+1];
+			}
+			//removed++;
+			last_enemy_index--;
+		}
+	}*/
+
+}
+
+void createEnemy(){
+	enemy temp;
+	temp.verticalPos = enemy_positions[last_enemy_index];
+	temp.horizontalPos = 700;
+	//printf("entrou : %d", temp.verticalPos );
+
+	vetor_inimigos[createdEnemies+1] = temp;
+	drawEnemy(temp,0);
+	last_enemy_index++;
+
+
+}
 
 int main(){
 	spaceship_position = 0;
@@ -151,13 +212,17 @@ int main(){
 
 	int ipc_status, irq_set, esc_found;
 
-	int time_count,refresh_count,enemy_count;
+	int time_count,refresh_count,enemy_count,enemy_refresh;
 	int missil_i;
+	total_enemies = 5;
 	last_missile_index = 1;
+	last_enemy_index = 1;
 	message msg;
 	esc_found = 0;
 	refresh_count = 0;
 	enemy_count = 0;
+	enemy_refresh = 0;
+
 
 	//sef_startup();
 
@@ -242,6 +307,7 @@ int main(){
 
 							refresh_count++;
 							enemy_count++;
+							enemy_refresh++;
 							if (refresh_count == 2)
 							{
 								//last_missile_index = actualizaMisseis(vetor_misseis,last_missile_index);
@@ -250,6 +316,7 @@ int main(){
 
 								actualizaMisseis(vetor_misseis);
 								checkColisao(vetor_misseis);
+								//if ( last_enemy_index>0 ) actualizaEnemy();
 								if (last_missile_index > 1)
 								for(missil_i = 1; missil_i < last_missile_index; missil_i++)
 								{
@@ -257,13 +324,20 @@ int main(){
 								}
 								refresh_count = 0;
 							}
-							if(enemy_count == 5)
+							if(enemy_count == 100)
 							{
-								enemy teste;
-								teste.horizontalPos = 600;
-								teste.verticalPos = 550;
-								drawEnemy(teste,0);
 
+								if ( createdEnemies  <= total_enemies )
+								{
+										createEnemy();
+										createdEnemies++;
+										enemy_count = 0;
+								}
+							}
+							if(enemy_refresh == 50)
+							{
+								actualizaEnemy(1);
+								enemy_refresh = 0;
 							}
 						}
 
