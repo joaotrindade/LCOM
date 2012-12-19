@@ -12,8 +12,8 @@
 
 void actualizaEnemy(int move);
 int spaceship_position;
-int last_missile_index, last_enemy_index, total_enemies, createdEnemies ;
-createdEnemies = 0;
+int last_missile_index, last_enemy_index, total_enemies ;
+int createdEnemies = 0;
 int enemy_positions[N_MAX_INIMIGOS]={0,200,100,300,400,500};
 int enemy_height = 100;
 int pontuacao = 0;
@@ -102,6 +102,7 @@ void drawEnemy(enemy input, int erase)
 
 void checkColisao(missile vetor_misseis[]){
 	int i, j,k;
+	int found = 0;
 	// vertical + 7
 	// horizonal + 50
 	for(i = 1; i < last_missile_index;i++)
@@ -119,12 +120,24 @@ void checkColisao(missile vetor_misseis[]){
 				if ( ( vetor_misseis[i].verticalPos + 7 > vetor_inimigos[j].verticalPos ) && ( vetor_misseis[i].verticalPos + 7 < vetor_inimigos[j].verticalPos + enemy_height ) )
 				{
 					printf("Detectou colisao parametrizada enemyindex : %d \n",j);
+					found = 1;
 					drawEnemy(vetor_inimigos[j],1);
+					drawMissile(vetor_misseis[i],1);
+
+					//Eliminar inimigo atingindo do vetor
 					for(k = j-1; k < last_enemy_index-1 ; k++)
 					{
 						vetor_inimigos[k] = vetor_inimigos[k+1];
+						//enemy_positions[k] = enemy_positions[k+1];
 					}
 
+					//Eliminar missil que acertou do vetor
+					for(k = i-1; k < last_missile_index-1 ; k++)
+					{
+						vetor_misseis[k] = vetor_misseis[k+1];
+					}
+
+					last_missile_index--;
 					last_enemy_index--;
 				}
 			}
@@ -195,6 +208,10 @@ void actualizaEnemy(int move){
 
 void createEnemy(){
 	enemy temp;
+	int i;
+	printf("Ciclo: \n");
+	for(i = 1; i < 5; i++) printf(" %d ",enemy_positions[i]);
+	printf("\n");
 	temp.verticalPos = enemy_positions[last_enemy_index];
 	temp.horizontalPos = 700;
 	//printf("entrou : %d", temp.verticalPos );
