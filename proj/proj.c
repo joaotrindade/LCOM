@@ -14,7 +14,7 @@ void actualizaEnemy(int move);
 int spaceship_position;
 int last_missile_index, last_enemy_index, total_enemies ;
 int createdEnemies = 0;
-int enemy_positions[N_MAX_INIMIGOS]={0,200,100,300,400,500};
+int enemy_positions[N_MAX_INIMIGOS]={0,0,100,200,300,0,500,600,100,500,450};
 int enemy_height = 100;
 int pontuacao = 0;
 static int hook= 0;
@@ -64,9 +64,6 @@ void drawMissile(missile input, int erase)
 	//printf("saiu");
 
 	//printf("vertical: %d, horizontal: %d \n \n", input.verticalPos, input.horizontalPos);
-
-
-
 	for(x = input.verticalPos; x < height + input.verticalPos ; x++)
 	{
 		for(y = input.horizontalPos; y <width+input.horizontalPos; y++, missile_map++)
@@ -74,10 +71,8 @@ void drawMissile(missile input, int erase)
 			if(erase == 0) vg_set_pixel(y,x,*missile_map);
 			else vg_set_pixel(y,x,0x00);
 			//printf("entrou\n");
-
 		}
 	}
-
 	//printf("X: %d | Y:%d \n",x,y);
 }
 
@@ -95,7 +90,6 @@ void drawEnemy(enemy input, int erase)
 				if(erase == 0) vg_set_pixel(y,x,*enemy);
 				else vg_set_pixel(y,x,0x00);
 				//printf("entrou\n");
-
 			}
 		}
 }
@@ -105,19 +99,23 @@ void checkColisao(missile vetor_misseis[]){
 	int found = 0;
 	// vertical + 7
 	// horizonal + 50
+	//printf("Last Enemy Index Inicial : %d \n",last_enemy_index );
 	for(i = 1; i < last_missile_index;i++)
 	{
-		if (vg_get_pixel(vetor_misseis[i].horizontalPos + 50,vetor_misseis[i].verticalPos + 7) != 0)
+		found = 0;
+		if ( (vg_get_pixel(vetor_misseis[i].horizontalPos + 50,vetor_misseis[i].verticalPos + 7) != 0) && (found == 0) )
 		{
+			printf("Detectou colisao \n",j);
 			//enemy teste1;
 			//teste1.horizontalPos = 850;
 			//teste1.verticalPos = 150;
 			//drawEnemy(teste1,0);
 
+
 			//VER QUAL É O INDICE DO VECTOR A QUE CORRESPONDE A COLISAO
 			for(j = 1; j < last_enemy_index; j++ )
 			{
-				if ( ( vetor_misseis[i].verticalPos + 7 > vetor_inimigos[j].verticalPos ) && ( vetor_misseis[i].verticalPos + 7 < vetor_inimigos[j].verticalPos + enemy_height ) )
+				if (( ( vetor_misseis[i].verticalPos + 7 > vetor_inimigos[j].verticalPos ) && ( vetor_misseis[i].verticalPos + 7 < vetor_inimigos[j].verticalPos + enemy_height ) ) && (found == 0))
 				{
 					printf("Detectou colisao parametrizada enemyindex : %d \n",j);
 					found = 1;
@@ -125,7 +123,7 @@ void checkColisao(missile vetor_misseis[]){
 					drawMissile(vetor_misseis[i],1);
 
 					//Eliminar inimigo atingindo do vetor
-					for(k = j-1; k < last_enemy_index-1 ; k++)
+					for(k = j; k < last_enemy_index-1 ; k++)
 					{
 						vetor_inimigos[k] = vetor_inimigos[k+1];
 						//enemy_positions[k] = enemy_positions[k+1];
@@ -139,13 +137,16 @@ void checkColisao(missile vetor_misseis[]){
 
 					last_missile_index--;
 					last_enemy_index--;
+					pontuacao+=100;
 				}
 			}
 			actualizaEnemy(0);
 
+
 		}
 
 	}
+	//printf("Last Enemy Index Final : %d\n",last_enemy_index );
 }
 
 int actualizaMisseis(missile vetor_misseis[]){
@@ -190,7 +191,7 @@ void actualizaEnemy(int move){
 		drawEnemy(vetor_inimigos[i],0);
 	}
 
-/*
+
 	for(i = 1; i < last_enemy_index;i++)
 	{
 		if (vetor_inimigos[i].horizontalPos < 10)
@@ -199,26 +200,25 @@ void actualizaEnemy(int move){
 			{
 				vetor_inimigos[j] = vetor_inimigos[j+1];
 			}
-			//removed++;
 			last_enemy_index--;
 		}
-	}*/
-
+	}
 }
 
 void createEnemy(){
 	enemy temp;
 	int i;
-	printf("Ciclo: \n");
-	for(i = 1; i < 5; i++) printf(" %d ",enemy_positions[i]);
-	printf("\n");
-	temp.verticalPos = enemy_positions[last_enemy_index];
+	//printf("Ciclo: \n");
+	//for(i = 1; i < 5; i++) printf(" %d ",enemy_positions[i]);
+	//printf("\n");
+	temp.verticalPos = enemy_positions[createdEnemies+1];
 	temp.horizontalPos = 700;
 	//printf("entrou : %d", temp.verticalPos );
 
-	vetor_inimigos[createdEnemies+1] = temp;
+	vetor_inimigos[last_enemy_index] = temp;
 	drawEnemy(temp,0);
 	last_enemy_index++;
+	createdEnemies++;
 
 
 }
@@ -231,7 +231,7 @@ int main(){
 
 	int time_count,refresh_count,enemy_count,enemy_refresh;
 	int missil_i;
-	total_enemies = 5;
+	total_enemies = 9;
 	last_missile_index = 1;
 	last_enemy_index = 1;
 	message msg;
@@ -344,10 +344,9 @@ int main(){
 							if(enemy_count == 100)
 							{
 
-								if ( createdEnemies  <= total_enemies )
+								if ( createdEnemies  < total_enemies )
 								{
 										createEnemy();
-										createdEnemies++;
 										enemy_count = 0;
 								}
 							}
