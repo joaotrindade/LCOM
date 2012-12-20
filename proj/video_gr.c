@@ -135,15 +135,54 @@ long vg_get_pixel(unsigned long x, unsigned long y) {
 int vg_draw_line(unsigned long xi, unsigned long yi, 
 		 unsigned long xf, unsigned long yf, unsigned long color) {
 
-		float d,y;
-		int x;
+		int deltaX = abs(xf-xi);
+		int deltaY = abs(yf - yi);
+		int i,temp;
 
-		d = (yf-yi)/(xf - xi);
-		y=yi;
-		for(x = xi; x<= xf; x++)
+		if(deltaX > deltaY)
 		{
-			y += d;
-			vg_set_pixel(x,(long)y, color);
+			if(xf - xi < 0)
+			{
+				temp = xi;
+				xi = xf;
+				xf = temp;
+
+				temp = yi;
+				yi = yf;
+				yf = temp;
+			}
+			for(i = 0; i <= deltaX; i++)
+			{
+				double y_point = (double)deltaY * (double)i / (double)deltaX;
+				if(yf - yi < 0)
+				{
+					vg_set_pixel(xi + i,yi - (int)(y_point + 0.5), color);
+				}
+				else vg_set_pixel(xi + i,yi + (int)(y_point + 0.5), color);
+			}
+		}
+		else
+		{
+			if(yf - yi < 0)
+			{
+				temp = xi;
+				xi = xf;
+				xf = temp;
+
+				temp = yi;
+				yi = yf;
+				yf = temp;
+			}
+			for(i = 0; i <= deltaY; i++)
+			{
+				double x_point = (double)deltaX * (double)i / (double)deltaY;
+				if(xf - xi < 0)
+				{
+					vg_set_pixel(xi - (int)(x_point + 0.5), yi + i, color);
+				}
+				else vg_set_pixel(xi + (int)(x_point + 0.5), yi + i, color);
+			}
+
 		}
 	return 0;
 }

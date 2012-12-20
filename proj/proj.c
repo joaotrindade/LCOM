@@ -3,18 +3,21 @@
 #include "pixmap.h"
 #include "KBC.h"
 #include "timer.h"
+#include "algarismos.h"
 #define WAIT_TIME_S 5
 #define UPPER_LIMIT 2
-#define LOWER_LIMIT 668
+#define LOWER_LIMIT 568
 #define N_MAX_MISSEIS 50
 #define N_MAX_INIMIGOS 50
 
 
 void actualizaEnemy(int move);
+void drawPontuacao();
+void drawNumber(int numero, int x_pos, int y_pos, int erase);
 int spaceship_position;
 int last_missile_index, last_enemy_index, total_enemies ;
 int createdEnemies = 0;
-int enemy_positions[N_MAX_INIMIGOS]={0,0,100,200,300,0,500,600,100,500,450};
+int enemy_positions[N_MAX_INIMIGOS]={0,0,100,200,300,400,500,100,400,500,450};
 int enemy_height = 100;
 int pontuacao = 0;
 static int hook= 0;
@@ -29,6 +32,12 @@ typedef struct {
 	int verticalPos;
 	int horizontalPos;
 } enemy;
+
+typedef struct {
+	int verticalPos;
+	int horizontalPos;
+	int vida;
+} boss;
 
 
 
@@ -138,6 +147,9 @@ void checkColisao(missile vetor_misseis[]){
 					last_missile_index--;
 					last_enemy_index--;
 					pontuacao+=100;
+					drawPontuacao();
+					//drawNumber(1,600,600,0);
+					//drawNumber(2,600,956,0);
 				}
 			}
 			actualizaEnemy(0);
@@ -147,6 +159,84 @@ void checkColisao(missile vetor_misseis[]){
 
 	}
 	//printf("Last Enemy Index Final : %d\n",last_enemy_index );
+}
+
+void drawNumber(int numero, int x_pos, int y_pos, int erase)
+{
+	//ERASE 1: Apaga
+	int width, height, x, y;
+	char *imagem;
+	printf("Numero : %d \n",numero);
+	switch(numero)
+	{
+		case 0: imagem = (char*)read_xpm(zero, &width, &height);
+				break;
+		case 1: imagem = (char*)read_xpm(one, &width, &height);
+				break;
+		case 2: imagem = (char*)read_xpm(two, &width, &height);
+				break;
+		case 3: imagem = (char*)read_xpm(three, &width, &height);
+				break;
+		case 4: imagem = (char*)read_xpm(four, &width, &height);
+				break;
+		case 5: imagem = (char*)read_xpm(five, &width, &height);
+				break;
+		case 6: imagem = (char*)read_xpm(six, &width, &height);
+				break;
+		case 7: imagem = (char*)read_xpm(seven, &width, &height);
+				break;
+		case 8: imagem = (char*)read_xpm(eight, &width, &height);
+				break;
+		case 9: imagem = (char*)read_xpm(nine, &width, &height);
+				break;
+		default: imagem = (char*)read_xpm(zero, &width, &height);
+				break;
+	}
+	printf("Passou o Switch\n");
+	for(x = x_pos; x < height + x_pos ; x++)
+	{
+		//printf("x: %d",x);
+		for(y = y_pos; y <width + y_pos; y++, imagem++)
+		{
+			//printf("y: %d \n",y);
+			if(erase == 0) vg_set_pixel(y,x,*imagem);
+			else vg_set_pixel(y,x,0x00);
+			//printf("entrou\n");
+		}
+	}
+
+}
+
+void drawPontuacao()
+{
+	//6 Algarismos- y: 590
+	// Primeiro algarismo x: 780
+	//	824, 868, 912, 956, 1000
+	int aux, temp, n_algarismos;
+	int last_x_pos = 956;
+	int last_y_pos = 670;
+	aux = pontuacao;
+	n_algarismos = 0;
+
+	while(aux >= 10)
+	{
+		temp = aux%10;
+		aux = aux/10;
+		printf("Temp: %d | aux: %d | last_y_pos: %d | last_x_pos: %d | \n",temp,aux,last_y_pos,last_x_pos);
+		drawNumber(temp, last_y_pos, last_x_pos, 0 );
+		last_x_pos = last_x_pos - 44 - 2; // 2 de espacamento
+		n_algarismos++;
+	}
+	drawNumber(aux, last_y_pos, last_x_pos, 0 );
+	last_x_pos = last_x_pos - 44 - 2;
+	n_algarismos++;
+
+	while(n_algarismos < 6)
+	{
+		drawNumber(0, last_y_pos, last_x_pos, 0 );
+		last_x_pos = last_x_pos - 44  - 2; // 2 de espacamento
+		n_algarismos++;
+	}
 }
 
 int actualizaMisseis(missile vetor_misseis[]){
@@ -223,6 +313,11 @@ void createEnemy(){
 
 }
 
+void drawGUI()
+{
+	vg_draw_line(0,668,1023,668,0x36);
+}
+
 int main(){
 	spaceship_position = 0;
 
@@ -241,6 +336,7 @@ int main(){
 	enemy_refresh = 0;
 
 
+
 	//sef_startup();
 
 	missile a1;
@@ -253,7 +349,7 @@ int main(){
 	timer_subscribe_int();
 	vg_init(0x105);
 
-
+	drawGUI();
 
 	//drawMainShip(spaceship_position);
 	irq_set = kbc_subscribe_int();
