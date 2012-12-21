@@ -24,6 +24,9 @@
 
 /* Timer control */
 
+#define TIMER2_ENABLE  (1 << 0) ///< Enable Timer2, bit 0 to 1
+#define SPEAKER_ENABLE (1 << 1) ///< Enable output to speaker, bit 1 to 1
+
 /* Timer selection: bits 7 and 6 */
 
 #define TIMER_SEL0		0x00     /**< @brief Control Word for Timer 0 */
@@ -41,6 +44,9 @@
 
 #define TIMER_SQR_WAVE		(BIT(2)|BIT(1)) /**< @brief Mode 3: square wave generator */
 #define TIMER_RATE_GEN		BIT(2)          /**< @brief Mode 2: rate generator */
+
+#define LSB(i) ((i) & 0xFF)
+#define MSB(i) ((i) >> 8)
 
 /* Counting mode: bit 0 */
 

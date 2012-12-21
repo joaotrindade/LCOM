@@ -2,7 +2,9 @@
 #include <minix/drivers.h>
 #include <minix/com.h>
 #include "i8254.h"
+#include "timer.h"
 int hook = 2;
+int timeCounter = 0;
 
 int timer_set_square(unsigned long timer, unsigned long freq) {
 
@@ -36,6 +38,12 @@ void timer_int_handler() {
 	timeCounter++;
 	//if ((timeCounter % 60) == 0) printf("%d", timeCounter/60);
 	//printf("%d\n", timeCounter);
+}
+
+void timer_load(int timer, int value)
+{
+	sys_outb(0x40 | timer, LSB(value));
+	sys_outb(0x40 | timer, MSB(value));
 }
 
 int timer_test_square(unsigned long freq) {

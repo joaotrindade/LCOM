@@ -18,10 +18,14 @@ int main(int argc, char **argv) {
 	sef_startup();
 
 	timer_subscribe_int();
-	//timer_test_square(1193181) ;
-	timer_test_int(360);
+
+
+	speaker_test(12356,20);
+
+
+
+
 	timer_unsubscribe_int();
-	//printf("saiu");
 
 	return 0;
 }
