@@ -318,7 +318,7 @@ void drawGUI()
 	vg_draw_line(0,668,1023,668,0x36);
 }
 
-int main(){
+int jogo(){
 	spaceship_position = 0;
 
 
