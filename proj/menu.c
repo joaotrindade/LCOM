@@ -1,6 +1,7 @@
 #include "video_gr.h"
 #include "KBC.h"
 #include "menu.h"
+#include "proj.h"
 
 void drawMenu(int erase)
 {
@@ -49,12 +50,13 @@ int main(){
 	int ipc_status, irq_set, option, exit;
 	unsigned char scancode;
 	message msg;
-	option = 0;
+	option = 1;
 	exit = 0;
 	vg_init(0x105);
 	irq_set = kbc_subscribe_int();
 
 	drawMenu(0);
+	drawCursor(option,0);
 
 	while(exit != 1) {
 		if(driver_receive(ANY, &msg, &ipc_status) != 0) {
@@ -91,12 +93,22 @@ int main(){
 						}
 						if (scancode == 0x39) // FOUND B.ESPACOS
 						{
+							if (option == 1) // NOVO JOGO
+							{
+								jogo(irq_set, ipc_status, msg);
+								vg_fill(0x00);
+								drawMenu(0);
+								drawCursor(option,0);
+
+							}
 							if (option == 3) exit = 1;
+
 						}
 					}
 			}
 		}
 	}
+	kbc_unsubscribe_int();
 	vg_exit();
 	return 0;
 

@@ -318,8 +318,8 @@ void drawGUI()
 	vg_draw_line(0,668,1023,668,0x36);
 }
 
-int jogo(){
-	spaceship_position = 0;
+int jogo(int _irq_set, int _ipc_status, message _msg){
+	spaceship_position = 334;
 
 
 	int ipc_status, irq_set, esc_found;
@@ -347,23 +347,25 @@ int jogo(){
 	//drawMissile(a1);
 
 	timer_subscribe_int();
-	vg_init(0x105);
-
+	//vg_init(0x105);
+	vg_fill(0x00);
 	drawGUI();
+	drawPontuacao();
+	drawMainShip(spaceship_position,0);
 
 	//drawMainShip(spaceship_position);
-	irq_set = kbc_subscribe_int();
+	//irq_set = kbc_subscribe_int();
 
 	while(!esc_found) {
-			if(driver_receive(ANY, &msg, &ipc_status) != 0) {
+			if(driver_receive(ANY, &_msg, &_ipc_status) != 0) {
 				printf("driver_receive failed\n");
 				continue;
 			}
-			if (is_ipc_notify(ipc_status)) {
+			if (is_ipc_notify(_ipc_status)) {
 
-				switch (_ENDPOINT_P(msg.m_source)) {
+				switch (_ENDPOINT_P(_msg.m_source)) {
 					case HARDWARE :
-						if (msg.NOTIFY_ARG & irq_set)
+						if (_msg.NOTIFY_ARG & _irq_set)
 						{
 							//printf("entrou ciclo\n");
 							scancode = read_scancode();
@@ -415,7 +417,7 @@ int jogo(){
 								drawMissile(a1,0);
 							}
 						}
-						if (msg.NOTIFY_ARG & 0x4)
+						if (_msg.NOTIFY_ARG & 0x4)
 						{
 
 							refresh_count++;
@@ -460,10 +462,10 @@ int jogo(){
 	//printf("Saiu do Ciclo\n");
 	timer_unsubscribe_int();
 	//printf("Fez unsubscribe ao timer\n");
-	kbc_unsubscribe_int();
+	//kbc_unsubscribe_int();
 	//printf("Fez unsubscribe ao KBC\n");
 	//sleep(2);
-	vg_exit();
+	//vg_exit();
 
 
 
