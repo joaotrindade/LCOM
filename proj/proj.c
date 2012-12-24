@@ -4,6 +4,8 @@
 #include "KBC.h"
 #include "timer.h"
 #include "algarismos.h"
+#include "alfabeto.h"
+#include "interface_xpm.h"
 #define WAIT_TIME_S 5
 #define UPPER_LIMIT 2
 #define LOWER_LIMIT 568
@@ -14,6 +16,8 @@
 void actualizaEnemy(int move);
 void drawPontuacao();
 void drawNumber(int numero, int x_pos, int y_pos, int erase);
+void drawLetter(char letra, int x_pos, int y_pos, int erase);
+void drawInterface(int numero_id, int x_pos, int y_pos, int erase);
 int spaceship_position;
 int last_missile_index, last_enemy_index, total_enemies ;
 int createdEnemies = 0;
@@ -39,10 +43,247 @@ typedef struct {
 	int vida;
 } boss;
 
+typedef struct {
+	char nome[15];
+	long pontuacao;
+	int dia;
+	int mes;
+	int ano;
+	int hora;
+	int minuto;
+} player_score;
+
 
 
 missile vetor_misseis[N_MAX_MISSEIS];
 enemy vetor_inimigos[N_MAX_INIMIGOS];
+
+void insertNome(player_score jogador, int _irq_set, int _ipc_status, message _msg)
+{
+	int enter_found = 0;
+	char tempNome[15];
+	int nextChar = 0;
+	unsigned char scancode2;
+	vg_fill(0x00);
+	drawInterface(0, 10, 259,0);
+	int letra_x, letra_y;
+	letra_x = 256;
+	letra_y = 341;
+
+
+	while(!enter_found) {
+		if(driver_receive(ANY, &_msg, &_ipc_status) != 0) {
+			printf("driver_receive failed\n");
+			continue;
+		}
+		if (is_ipc_notify(_ipc_status)) {
+
+			switch (_ENDPOINT_P(_msg.m_source)) {
+				case HARDWARE :
+					if (_msg.NOTIFY_ARG & _irq_set)
+					{
+						printf("nome: %s\n",tempNome);
+						//printf("entrou ciclo\n");
+						scancode2 = read_scancode();
+						if (scancode2 == 0x1c) {
+							enter_found = 1;
+						}
+
+						if (scancode2 == 0x1e)
+						{
+
+							drawLetter('A', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'A';
+							nextChar++;
+							letra_y += 25;
+
+						}
+						if (scancode2 == 0x30)
+						{
+							drawLetter('B', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'B';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x2e)
+						{
+							drawLetter('C', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'C';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x20)
+						{
+							drawLetter('D', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'D';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x12)
+						{
+							drawLetter('E', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'E';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x21)
+						{
+							drawLetter('F', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'F';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x22)
+						{
+							drawLetter('G', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'G';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x23)
+						{
+							drawLetter('H', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'H';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x17)
+						{
+							drawLetter('I', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'I';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x24)
+						{
+							drawLetter('J', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'J';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x25)
+						{
+							drawLetter('K', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'K';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x26)
+						{
+							drawLetter('L', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'L';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x32)
+						{
+							drawLetter('M', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'M';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x31)
+						{
+							drawLetter('N', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'N';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x18)
+						{
+							drawLetter('O', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'O';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x19)
+						{
+							drawLetter('P', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'P';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x10)
+						{
+							drawLetter('Q', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'Q';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x13)
+						{
+							drawLetter('R', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'R';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x1f)
+						{
+							drawLetter('S', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'S';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x14)
+						{
+							drawLetter('T', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'T';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x16)
+						{
+							drawLetter('U', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'U';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x2f)
+						{
+							drawLetter('V', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'V';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x11)
+						{
+							drawLetter('W', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'W';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x2d)
+						{
+							drawLetter('X', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'X';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x15)
+						{
+							drawLetter('Y', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'Y';
+							nextChar++;
+							letra_y += 25;
+						}
+						if (scancode2 == 0x2c)
+						{
+							drawLetter('Z', letra_x, letra_y, 0);
+							tempNome[nextChar] = 'Z';
+							nextChar++;
+							letra_y += 25;
+						}
+
+						tempNome[nextChar] = '\0';
+					}
+			}
+		}
+	}
+
+}
+
+
+
 
 
 void drawMainShip(int verticalPos, int erase)
@@ -207,6 +448,108 @@ void drawNumber(int numero, int x_pos, int y_pos, int erase)
 
 }
 
+void drawLetter(char letra, int x_pos, int y_pos, int erase)
+{
+	//ERASE 1: Apaga
+	int width, height, x, y;
+	char *imagem;
+	//printf("Numero : %d \n",numero);
+	switch(letra)
+	{
+		case 'A': imagem = (char*)read_xpm(letra_A, &width, &height);
+				break;
+		case 'B': imagem = (char*)read_xpm(letra_B, &width, &height);
+				break;
+		case 'C': imagem = (char*)read_xpm(letra_C, &width, &height);
+				break;
+		case 'D': imagem = (char*)read_xpm(letra_D, &width, &height);
+				break;
+		case 'E': imagem = (char*)read_xpm(letra_E, &width, &height);
+				break;
+		case 'F': imagem = (char*)read_xpm(letra_F, &width, &height);
+				break;
+		case 'G': imagem = (char*)read_xpm(letra_G, &width, &height);
+				break;
+		case 'H': imagem = (char*)read_xpm(letra_H, &width, &height);
+				break;
+		case 'I': imagem = (char*)read_xpm(letra_I, &width, &height);
+				break;
+		case 'J': imagem = (char*)read_xpm(letra_J, &width, &height);
+				break;
+		case 'K': imagem = (char*)read_xpm(letra_K, &width, &height);
+				break;
+		case 'L': imagem = (char*)read_xpm(letra_L, &width, &height);
+				break;
+		case 'M': imagem = (char*)read_xpm(letra_M, &width, &height);
+				break;
+		case 'N': imagem = (char*)read_xpm(letra_N, &width, &height);
+				break;
+		case 'O': imagem = (char*)read_xpm(letra_O, &width, &height);
+				break;
+		case 'P': imagem = (char*)read_xpm(letra_P, &width, &height);
+				break;
+		case 'Q': imagem = (char*)read_xpm(letra_Q, &width, &height);
+				break;
+		case 'R': imagem = (char*)read_xpm(letra_R, &width, &height);
+				break;
+		case 'S': imagem = (char*)read_xpm(letra_S, &width, &height);
+				break;
+		case 'T': imagem = (char*)read_xpm(letra_T, &width, &height);
+				break;
+		case 'V': imagem = (char*)read_xpm(letra_V, &width, &height);
+				break;
+		case 'U': imagem = (char*)read_xpm(letra_U, &width, &height);
+				break;
+		case 'W': imagem = (char*)read_xpm(letra_W, &width, &height);
+				break;
+		case 'X': imagem = (char*)read_xpm(letra_X, &width, &height);
+				break;
+		case 'Y': imagem = (char*)read_xpm(letra_Y, &width, &height);
+				break;
+		case 'Z': imagem = (char*)read_xpm(letra_Z, &width, &height);
+				break;
+		default: imagem = (char*)read_xpm(letra_A, &width, &height);
+				break;
+	}
+	printf("Passou o Switch\n");
+	for(x = x_pos; x < height + x_pos ; x++)
+	{
+		//printf("x: %d",x);
+		for(y = y_pos; y <width + y_pos; y++, imagem++)
+		{
+			//printf("y: %d \n",y);
+			if(erase == 0) vg_set_pixel(y,x,*imagem);
+			else vg_set_pixel(y,x,0x00);
+			//printf("entrou\n");
+		}
+	}
+
+}
+
+void drawInterface(int numero_id, int x_pos, int y_pos, int erase)
+{
+	//ERASE 1: Apaga
+	int width, height, x, y;
+	char *imagem;
+	switch(numero_id)
+	{
+		case 0: imagem = (char*)read_xpm(insert_name, &width, &height);
+				break;
+
+	}
+	for(x = x_pos; x < height + x_pos ; x++)
+	{
+		//printf("x: %d",x);
+		for(y = y_pos; y <width + y_pos; y++, imagem++)
+		{
+			//printf("y: %d \n",y);
+			if(erase == 0) vg_set_pixel(y,x,*imagem);
+			else vg_set_pixel(y,x,0x00);
+			//printf("entrou\n");
+		}
+	}
+}
+
 void drawPontuacao()
 {
 	//6 Algarismos- y: 590
@@ -323,7 +666,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 
 
 	int ipc_status, irq_set, esc_found;
-
+	int game_over = 0;
 	int time_count,refresh_count,enemy_count,enemy_refresh;
 	int missil_i;
 	total_enemies = 9;
@@ -335,7 +678,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 	enemy_count = 0;
 	enemy_refresh = 0;
 
-
+	player_score jogador1;
 
 	//sef_startup();
 
@@ -356,7 +699,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 	//drawMainShip(spaceship_position);
 	//irq_set = kbc_subscribe_int();
 
-	while(!esc_found) {
+	while(!esc_found && !game_over) {
 			if(driver_receive(ANY, &_msg, &_ipc_status) != 0) {
 				printf("driver_receive failed\n");
 				continue;
@@ -447,6 +790,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 										createEnemy();
 										enemy_count = 0;
 								}
+								else game_over = 1;
 							}
 							if(enemy_refresh == 50)
 							{
@@ -459,6 +803,14 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 		}
 
 	}
+	/*if (game_over == 1)
+	{
+		jogador1.pontuacao = pontuacao;
+		insertNome(jogador1, _irq_set, _ipc_status, _msg);
+	}*/
+
+	insertNome(jogador1, _irq_set, _ipc_status, _msg);
+
 	//printf("Saiu do Ciclo\n");
 	timer_unsubscribe_int();
 	//printf("Fez unsubscribe ao timer\n");
