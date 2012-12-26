@@ -1,62 +1,112 @@
-#include <stdlib.h>
-#include "video_gr.h"
-#include "pixmap.h"
-#include "KBC.h"
-#include "timer.h"
-#include "algarismos.h"
-#include "alfabeto.h"
-#include "interface_xpm.h"
+
+#include "proj.h"
 #define WAIT_TIME_S 5
 #define UPPER_LIMIT 2
 #define LOWER_LIMIT 568
 #define N_MAX_MISSEIS 50
 #define N_MAX_INIMIGOS 50
+#define enemy_height 100
 
 
-void actualizaEnemy(int move);
-void drawPontuacao();
-void drawNumber(int numero, int x_pos, int y_pos, int erase);
-void drawLetter(char letra, int x_pos, int y_pos, int erase);
-void drawInterface(int numero_id, int x_pos, int y_pos, int erase);
+
 int spaceship_position;
 int last_missile_index, last_enemy_index, total_enemies ;
 int createdEnemies = 0;
 int enemy_positions[N_MAX_INIMIGOS]={0,0,100,200,300,400,500,100,400,500,450};
-int enemy_height = 100;
+//int enemy_height = 100;
 int pontuacao = 0;
 static int hook= 0;
 unsigned char scancode;
 
-typedef struct {
-	int verticalPos;
-	int horizontalPos;
-} missile;
-
-typedef struct {
-	int verticalPos;
-	int horizontalPos;
-} enemy;
-
-typedef struct {
-	int verticalPos;
-	int horizontalPos;
-	int vida;
-} boss;
-
-typedef struct {
-	char nome[15];
-	long pontuacao;
-	int dia;
-	int mes;
-	int ano;
-	int hora;
-	int minuto;
-} player_score;
 
 
 
 missile vetor_misseis[N_MAX_MISSEIS];
 enemy vetor_inimigos[N_MAX_INIMIGOS];
+player_score highscores[50];
+int last_highscore = 0;
+int lowestHighscore = 0;
+
+void ordenaHighScores()
+{
+	int i, j;
+	player_score temp;
+	for( i = 0 ;  i < last_highscore - 1  ; i++)
+	{
+		for (j = i + 1; j < last_highscore; j++)
+		{
+			if (highscores[j].pontuacao > highscores[i].pontuacao)
+			{
+				temp = highscores[i];
+				highscores[i] = highscores[j];
+				highscores[j] = temp;
+			}
+		}
+	}
+}
+
+
+void writeHighScores(player_score arrayResultados[])
+{
+	int i, fim;
+	player_score temp;
+	fim = 15;
+	FILE *fp;
+	printf("ENTROU ESCRITA\n");
+	if(fp = fopen("/usr/src/drivers/proj/highscores", "w"))
+	{
+		if (last_highscore < 15) fim  = last_highscore;
+		for (i = 0; i < fim; i++)
+		{
+			temp = arrayResultados[i];
+			fwrite(&temp,1,sizeof(temp),fp);
+		}
+		fclose(fp);
+	}
+	else printf("ERRO DE ESCRITA: FICHEIRO NAO EXISTE!");
+}
+
+
+void readHighScores(player_score arrayResultados[])
+{
+	player_score temp, vazio;
+	strcpy(vazio.nome, "EMPTY");
+	vazio.pontuacao = 0;
+	vazio.dia = 0;
+	vazio.mes = 0;
+	vazio.ano = 0;
+	vazio.hora = 0;
+	vazio.minuto = 0;
+
+	int i,numero_entradas = 0 ;
+
+	FILE *fp;
+	printf("ENTROU LEITURA\n");
+	if(fp = fopen("/usr/src/drivers/proj/highscores", "r"))
+	{
+		last_highscore  = 0;
+
+		fread (&temp,sizeof(temp),1,fp);
+		do
+		{
+			arrayResultados[last_highscore] = temp;
+			numero_entradas++;
+			last_highscore++;
+			if (temp.pontuacao < lowestHighscore) lowestHighscore = temp.pontuacao;
+			printf("Nome: %s \n",temp.nome);
+			printf("Pontuacao: %d \n",temp.pontuacao);
+			printf("%x - %x - %x ! %x : %x\n",temp.dia,temp.mes,temp.ano,temp.hora,temp.minuto);
+			fread (&temp,sizeof(temp),1,fp);
+
+		}while(!(feof(fp)));
+		fclose(fp);
+	}
+	else printf("ERRO DE LEITURA: FICHEIRO NAO EXISTE!");
+	for(i = numero_entradas; i < 15; i++)
+	{
+		arrayResultados[i] = vazio;
+	}
+}
 
 void insertNome(player_score jogador, int _irq_set, int _ipc_status, message _msg)
 {
@@ -70,6 +120,8 @@ void insertNome(player_score jogador, int _irq_set, int _ipc_status, message _ms
 	letra_x = 256;
 	letra_y = 341;
 
+	printf("Pontuacao na Funcao : %d\n",jogador.pontuacao);
+
 
 	while(!enter_found) {
 		if(driver_receive(ANY, &_msg, &_ipc_status) != 0) {
@@ -82,7 +134,6 @@ void insertNome(player_score jogador, int _irq_set, int _ipc_status, message _ms
 				case HARDWARE :
 					if (_msg.NOTIFY_ARG & _irq_set)
 					{
-						printf("nome: %s\n",tempNome);
 						//printf("entrou ciclo\n");
 						scancode2 = read_scancode();
 						if (scancode2 == 0x1c) {
@@ -279,7 +330,30 @@ void insertNome(player_score jogador, int _irq_set, int _ipc_status, message _ms
 			}
 		}
 	}
+	strcpy(jogador.nome, tempNome);
 
+	long int dia1, mes1, ano1, hora1, minuto1;
+	long int *p_dia, *p_mes, *p_ano, *p_hora, *p_minuto;
+	//printf("entrou apontadores\n");
+	p_dia = &dia1;
+	p_mes = &mes1;
+	p_ano = &ano1;
+	p_hora = &hora1;
+	p_minuto = &minuto1;
+	//printf("passou apontadores\n");
+	get_data(p_dia,p_mes,p_ano,p_hora,p_minuto);
+	//printf("saiu");
+	printf(" DEPOIS DO GETDATA %x - %x - %x ! %x : %x",dia1,mes1,ano1,hora1,minuto1);
+
+	jogador.ano = ano1;
+	jogador.mes = mes1;
+	jogador.dia = dia1;
+	jogador.hora = hora1;
+	jogador.minuto = minuto1;
+
+	highscores[last_highscore] = jogador;
+	last_highscore++;
+	writeHighScores(highscores);
 }
 
 
@@ -355,7 +429,7 @@ void checkColisao(missile vetor_misseis[]){
 		found = 0;
 		if ( (vg_get_pixel(vetor_misseis[i].horizontalPos + 50,vetor_misseis[i].verticalPos + 7) != 0) && (found == 0) )
 		{
-			printf("Detectou colisao \n",j);
+			//printf("Detectou colisao \n",j);
 			//enemy teste1;
 			//teste1.horizontalPos = 850;
 			//teste1.verticalPos = 150;
@@ -367,7 +441,7 @@ void checkColisao(missile vetor_misseis[]){
 			{
 				if (( ( vetor_misseis[i].verticalPos + 7 > vetor_inimigos[j].verticalPos ) && ( vetor_misseis[i].verticalPos + 7 < vetor_inimigos[j].verticalPos + enemy_height ) ) && (found == 0))
 				{
-					printf("Detectou colisao parametrizada enemyindex : %d \n",j);
+					//printf("Detectou colisao parametrizada enemyindex : %d \n",j);
 					found = 1;
 					drawEnemy(vetor_inimigos[j],1);
 					drawMissile(vetor_misseis[i],1);
@@ -388,7 +462,7 @@ void checkColisao(missile vetor_misseis[]){
 					last_missile_index--;
 					last_enemy_index--;
 					pontuacao+=100;
-					drawPontuacao();
+					drawPontuacao(pontuacao, 956,670,0);
 					//drawNumber(1,600,600,0);
 					//drawNumber(2,600,956,0);
 				}
@@ -402,38 +476,79 @@ void checkColisao(missile vetor_misseis[]){
 	//printf("Last Enemy Index Final : %d\n",last_enemy_index );
 }
 
-void drawNumber(int numero, int x_pos, int y_pos, int erase)
+void drawNumber(int numero, int x_pos, int y_pos, int erase, int small)
 {
 	//ERASE 1: Apaga
+	//SMALL 1: NUMERO PEQUENO
 	int width, height, x, y;
 	char *imagem;
-	printf("Numero : %d \n",numero);
+	//printf("Numero : %d \n",numero);
 	switch(numero)
 	{
-		case 0: imagem = (char*)read_xpm(zero, &width, &height);
+		case 0: {
+					if(small == 1) imagem = (char*)read_xpm(zero_small, &width, &height);
+					else imagem = (char*)read_xpm(zero, &width, &height);
+				}
 				break;
-		case 1: imagem = (char*)read_xpm(one, &width, &height);
+
+		case 1: {
+					if(small == 1) imagem = (char*)read_xpm(one_small, &width, &height);
+					else imagem = (char*)read_xpm(one, &width, &height);
+				}
 				break;
-		case 2: imagem = (char*)read_xpm(two, &width, &height);
+
+		case 2: {
+					if(small == 1) imagem = (char*)read_xpm(two_small, &width, &height);
+					else imagem = (char*)read_xpm(two, &width, &height);
+				}
 				break;
-		case 3: imagem = (char*)read_xpm(three, &width, &height);
+
+		case 3: {
+					if(small == 1) imagem = (char*)read_xpm(three_small, &width, &height);
+					else imagem = (char*)read_xpm(three, &width, &height);
+				}
 				break;
-		case 4: imagem = (char*)read_xpm(four, &width, &height);
+
+		case 4: {
+					if(small == 1) imagem = (char*)read_xpm(four_small, &width, &height);
+					else imagem = (char*)read_xpm(four, &width, &height);
+				}
 				break;
-		case 5: imagem = (char*)read_xpm(five, &width, &height);
+
+		case 5: {
+					if(small == 1) imagem = (char*)read_xpm(five_small, &width, &height);
+					else imagem = (char*)read_xpm(five, &width, &height);
+				}
 				break;
-		case 6: imagem = (char*)read_xpm(six, &width, &height);
+
+		case 6: {
+				if(small == 1) imagem = (char*)read_xpm(six_small, &width, &height);
+				else imagem = (char*)read_xpm(six, &width, &height);
+				}
 				break;
-		case 7: imagem = (char*)read_xpm(seven, &width, &height);
+
+		case 7: {
+					if(small == 1) imagem = (char*)read_xpm(seven_small, &width, &height);
+					else imagem = (char*)read_xpm(seven, &width, &height);
+				}
 				break;
-		case 8: imagem = (char*)read_xpm(eight, &width, &height);
+
+		case 8: {
+					if(small == 1) imagem = (char*)read_xpm(eight_small, &width, &height);
+					else imagem = (char*)read_xpm(eight, &width, &height);
+				}
 				break;
-		case 9: imagem = (char*)read_xpm(nine, &width, &height);
+
+		case 9: {
+					if(small == 1) imagem = (char*)read_xpm(nine_small, &width, &height);
+					else imagem = (char*)read_xpm(nine, &width, &height);
+				}
 				break;
+
 		default: imagem = (char*)read_xpm(zero, &width, &height);
 				break;
 	}
-	printf("Passou o Switch\n");
+	//printf("Passou o Switch\n");
 	for(x = x_pos; x < height + x_pos ; x++)
 	{
 		//printf("x: %d",x);
@@ -511,7 +626,7 @@ void drawLetter(char letra, int x_pos, int y_pos, int erase)
 		default: imagem = (char*)read_xpm(letra_A, &width, &height);
 				break;
 	}
-	printf("Passou o Switch\n");
+	//printf("Passou o Switch\n");
 	for(x = x_pos; x < height + x_pos ; x++)
 	{
 		//printf("x: %d",x);
@@ -550,34 +665,39 @@ void drawInterface(int numero_id, int x_pos, int y_pos, int erase)
 	}
 }
 
-void drawPontuacao()
+void drawPontuacao(int valor,int x_pos, int y_pos, int small)
 {
 	//6 Algarismos- y: 590
 	// Primeiro algarismo x: 780
 	//	824, 868, 912, 956, 1000
+	int largura = 44;
 	int aux, temp, n_algarismos;
-	int last_x_pos = 956;
-	int last_y_pos = 670;
-	aux = pontuacao;
+	int last_x_pos = x_pos;
+	int last_y_pos = y_pos;
+	aux = valor;
 	n_algarismos = 0;
+
+	if(small = 1) largura = 20;
 
 	while(aux >= 10)
 	{
 		temp = aux%10;
 		aux = aux/10;
-		printf("Temp: %d | aux: %d | last_y_pos: %d | last_x_pos: %d | \n",temp,aux,last_y_pos,last_x_pos);
-		drawNumber(temp, last_y_pos, last_x_pos, 0 );
-		last_x_pos = last_x_pos - 44 - 2; // 2 de espacamento
+		//printf("Temp: %d | aux: %d | last_y_pos: %d | last_x_pos: %d | \n",temp,aux,last_y_pos,last_x_pos);
+		drawNumber(temp, last_y_pos, last_x_pos, 0, small );
+		last_x_pos = last_x_pos - largura - 2; // 2 de espacamento
+
+
 		n_algarismos++;
 	}
-	drawNumber(aux, last_y_pos, last_x_pos, 0 );
-	last_x_pos = last_x_pos - 44 - 2;
+	drawNumber(aux, last_y_pos, last_x_pos, 0, small );
+	last_x_pos = last_x_pos - largura - 2;
 	n_algarismos++;
 
 	while(n_algarismos < 6)
 	{
-		drawNumber(0, last_y_pos, last_x_pos, 0 );
-		last_x_pos = last_x_pos - 44  - 2; // 2 de espacamento
+		drawNumber(0, last_y_pos, last_x_pos, 0,small );
+		last_x_pos = last_x_pos - largura  - 2; // 2 de espacamento
 		n_algarismos++;
 	}
 }
@@ -677,7 +797,9 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 	refresh_count = 0;
 	enemy_count = 0;
 	enemy_refresh = 0;
+	pontuacao = 0;
 
+	readHighScores(highscores);
 	player_score jogador1;
 
 	//sef_startup();
@@ -693,7 +815,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 	//vg_init(0x105);
 	vg_fill(0x00);
 	drawGUI();
-	drawPontuacao();
+	drawPontuacao(pontuacao, 956, 670, 0);
 	drawMainShip(spaceship_position,0);
 
 	//drawMainShip(spaceship_position);
@@ -790,7 +912,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 										createEnemy();
 										enemy_count = 0;
 								}
-								else game_over = 1;
+								//else game_over = 1;
 							}
 							if(enemy_refresh == 50)
 							{
@@ -809,6 +931,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 		insertNome(jogador1, _irq_set, _ipc_status, _msg);
 	}*/
 
+	jogador1.pontuacao = pontuacao;
 	insertNome(jogador1, _irq_set, _ipc_status, _msg);
 
 	//printf("Saiu do Ciclo\n");

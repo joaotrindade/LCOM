@@ -1,3 +1,6 @@
+#ifndef __ALGA_H
+#define __ALGA_H
+
 /* XPM */
 static char *zero[] = {
 /* columns rows colors chars-per-pixel */
@@ -792,3 +795,5 @@ static char *nine[] = {
 "--------------------------------------------",
 "--------------------------------------------"
 };
+
+#endif /* __ALGA */

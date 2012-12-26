@@ -2,8 +2,9 @@
 #include <minix/drivers.h>
 #include <minix/com.h>
 #include "i8254.h"
+#include "timer.h"
 int hook = 2;
-
+int timeCounter = 0;
 int timer_set_square(unsigned long timer, unsigned long freq) {
 
 	if(timer==0){
@@ -49,7 +50,7 @@ int timer_test_int(unsigned long time) {
 
 	int ipc_status ;
 	message msg ;
-	int timeCounter = 0;
+
 
 	while( timeCounter < time ) {
 		if ( driver_receive(ANY, &msg, &ipc_status) != 0 ) {

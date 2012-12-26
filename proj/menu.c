@@ -1,7 +1,5 @@
-#include "video_gr.h"
-#include "KBC.h"
 #include "menu.h"
-#include "proj.h"
+
 
 void drawMenu(int erase)
 {
@@ -45,6 +43,26 @@ void drawCursor(int pos, int erase)
 
 }
 
+
+/*
+
+ CONJUNTO DE CODIGO PARA TIRAR A DATA
+
+ 	 long int dia1, mes1, ano1, hora1, minuto1;
+	long int *p_dia, *p_mes, *p_ano, *p_hora, *p_minuto;
+	//printf("entrou apontadores\n");
+	p_dia = &dia1;
+	p_mes = &mes1;
+	p_ano = &ano1;
+	p_hora = &hora1;
+	p_minuto = &minuto1;
+	//printf("passou apontadores\n");
+	get_data(p_dia,p_mes,p_ano,p_hora,p_minuto);
+	//printf("saiu");
+	printf("%x - %x - %x ! %x : %x",dia1,mes1,ano1,hora1,minuto1);
+
+ */
+
 int main(){
 
 	int ipc_status, irq_set, option, exit;
@@ -52,11 +70,26 @@ int main(){
 	message msg;
 	option = 1;
 	exit = 0;
+	//sef_startup();
+
+
 	vg_init(0x105);
 	irq_set = kbc_subscribe_int();
 
 	drawMenu(0);
 	drawCursor(option,0);
+	 long int dia1, mes1, ano1, hora1, minuto1;
+	long int *p_dia, *p_mes, *p_ano, *p_hora, *p_minuto;
+	//printf("entrou apontadores\n");
+	p_dia = &dia1;
+	p_mes = &mes1;
+	p_ano = &ano1;
+	p_hora = &hora1;
+	p_minuto = &minuto1;
+	//printf("passou apontadores\n");
+	get_data(p_dia,p_mes,p_ano,p_hora,p_minuto);
+	//printf("saiu");
+	printf("%x - %x - %x ! %x : %x",dia1,mes1,ano1,hora1,minuto1);
 
 	while(exit != 1) {
 		if(driver_receive(ANY, &msg, &ipc_status) != 0) {
@@ -99,6 +132,15 @@ int main(){
 								vg_fill(0x00);
 								drawMenu(0);
 								drawCursor(option,0);
+
+							}
+							if (option == 2) // HIGHSCORES
+							{
+
+								print_scores(irq_set, ipc_status, msg);
+								//vg_fill(0x00);
+								//drawMenu(0);
+								//drawCursor(option,0);
 
 							}
 							if (option == 3) exit = 1;

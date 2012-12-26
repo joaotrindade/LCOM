@@ -1,3 +1,6 @@
+#ifndef __ALPHA_H
+#define __ALPHA_H
+
 /* XPM */
 static char *letra_A[] = {
 /* columns rows colors chars-per-pixel */
@@ -1023,3 +1026,4 @@ static char *letra_Z[] = {
 
 
 
+#endif /* __ALPHA */
