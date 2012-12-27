@@ -138,9 +138,9 @@ int main(){
 							{
 
 								print_scores(irq_set, ipc_status, msg);
-								//vg_fill(0x00);
-								//drawMenu(0);
-								//drawCursor(option,0);
+								vg_fill(0x00);
+								drawMenu(0);
+								drawCursor(option,0);
 
 							}
 							if (option == 3) exit = 1;

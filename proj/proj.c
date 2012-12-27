@@ -72,16 +72,17 @@ void readHighScores(player_score arrayResultados[])
 	player_score temp, vazio;
 	strcpy(vazio.nome, "EMPTY");
 	vazio.pontuacao = 0;
-	vazio.dia = 0;
-	vazio.mes = 0;
-	vazio.ano = 0;
-	vazio.hora = 0;
-	vazio.minuto = 0;
+
+	vazio.dia = '0';
+	vazio.mes = '0';
+	vazio.ano = '0';
+	vazio.hora = '0';
+	vazio.minuto = '0';
 
 	int i,numero_entradas = 0 ;
 
 	FILE *fp;
-	printf("ENTROU LEITURA\n");
+	//printf("ENTROU LEITURA\n");
 	if(fp = fopen("/usr/src/drivers/proj/highscores", "r"))
 	{
 		last_highscore  = 0;
@@ -93,9 +94,9 @@ void readHighScores(player_score arrayResultados[])
 			numero_entradas++;
 			last_highscore++;
 			if (temp.pontuacao < lowestHighscore) lowestHighscore = temp.pontuacao;
-			printf("Nome: %s \n",temp.nome);
-			printf("Pontuacao: %d \n",temp.pontuacao);
-			printf("%x - %x - %x ! %x : %x\n",temp.dia,temp.mes,temp.ano,temp.hora,temp.minuto);
+			//printf("Nome: %s \n",temp.nome);
+			//printf("Pontuacao: %d \n",temp.pontuacao);
+			//printf("%x - %x - %x ! %x : %x\n",temp.dia,temp.mes,temp.ano,temp.hora,temp.minuto);
 			fread (&temp,sizeof(temp),1,fp);
 
 		}while(!(feof(fp)));
