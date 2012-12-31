@@ -3,7 +3,7 @@
 #define WAIT_TIME_S 5
 #define UPPER_LIMIT 2
 #define LOWER_LIMIT 568
-#define N_MAX_MISSEIS 50
+#define N_MAX_MISSEIS 200
 #define N_MAX_INIMIGOS 50
 #define enemy_height 100
 
@@ -11,8 +11,11 @@
 
 int spaceship_position;
 int last_missile_index, last_enemy_index, total_enemies ;
+int aliveEnemies = 0;
 int createdEnemies = 0;
-int enemy_positions[N_MAX_INIMIGOS]={0,0,100,200,300,400,500,100,400,500,450};
+int total_enemy_positions[N_MAX_INIMIGOS]={0,0,100,200,300,400,500,100,400,500,450,300,400,120,280,400,500,0,300,100,0,500,100,400,200,300,0,500,150,350,200,0,500,200,400,300,150,0,400,150,0,220,400,260,500,0, 500, 400, 200, 0, 300};
+int enemy_positions[N_MAX_INIMIGOS];
+int game_over = 0;
 //int enemy_height = 100;
 int pontuacao = 0;
 static int hook= 0;
@@ -27,7 +30,7 @@ player_score highscores[50];
 int last_highscore = 0;
 int lowestHighscore = 0;
 
-void ordenaHighScores()
+void ordenaHighScores(player_score arrayResultados[])
 {
 	int i, j;
 	player_score temp;
@@ -35,11 +38,11 @@ void ordenaHighScores()
 	{
 		for (j = i + 1; j < last_highscore; j++)
 		{
-			if (highscores[j].pontuacao > highscores[i].pontuacao)
+			if (arrayResultados[j].pontuacao > arrayResultados[i].pontuacao)
 			{
-				temp = highscores[i];
-				highscores[i] = highscores[j];
-				highscores[j] = temp;
+				temp = arrayResultados[i];
+				arrayResultados[i] = highscores[j];
+				arrayResultados[j] = temp;
 			}
 		}
 	}
@@ -354,6 +357,7 @@ void insertNome(player_score jogador, int _irq_set, int _ipc_status, message _ms
 
 	highscores[last_highscore] = jogador;
 	last_highscore++;
+	ordenaHighScores(highscores);
 	writeHighScores(highscores);
 }
 
@@ -406,7 +410,7 @@ void drawEnemy(enemy input, int erase)
 	// ERASE : 1 APAGA
 	int width, height, x, y;
 	char *enemy;
-	enemy = (char*)read_xpm(placeholder, &width, &height);
+	enemy = (char*)read_xpm(enemy_pix, &width, &height);
 
 	for(x = input.verticalPos; x < height + input.verticalPos ; x++)
 		{
@@ -459,7 +463,7 @@ void checkColisao(missile vetor_misseis[]){
 					{
 						vetor_misseis[k] = vetor_misseis[k+1];
 					}
-
+					aliveEnemies--;
 					last_missile_index--;
 					last_enemy_index--;
 					pontuacao+=100;
@@ -743,6 +747,7 @@ void actualizaEnemy(int move){
 		drawEnemy(vetor_inimigos[i],1);
 		if(move == 1) vetor_inimigos[i].horizontalPos-=20;
 		drawEnemy(vetor_inimigos[i],0);
+		if (vetor_inimigos[i].horizontalPos < 100) game_over = 1;
 	}
 
 
@@ -787,10 +792,11 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 
 
 	int ipc_status, irq_set, esc_found;
-	int game_over = 0;
+
 	int time_count,refresh_count,enemy_count,enemy_refresh;
 	int missil_i;
-	total_enemies = 9;
+
+	total_enemies = N_MAX_INIMIGOS;
 	last_missile_index = 1;
 	last_enemy_index = 1;
 	message msg;
@@ -799,9 +805,18 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 	enemy_count = 0;
 	enemy_refresh = 0;
 	pontuacao = 0;
+	game_over = 0;
+	createdEnemies = 0 ;
+	aliveEnemies = 0;
 
 	readHighScores(highscores);
 	player_score jogador1;
+
+	int i;
+	for(i = 0; i < N_MAX_INIMIGOS; i++ )
+	{
+		enemy_positions[i] = total_enemy_positions[i];
+	}
 
 	//sef_startup();
 
@@ -812,7 +827,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 
 	//drawMissile(a1);
 
-	timer_subscribe_int();
+
 	//vg_init(0x105);
 	vg_fill(0x00);
 	drawGUI();
@@ -885,7 +900,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 						}
 						if (_msg.NOTIFY_ARG & 0x4)
 						{
-
+							printf("entrou no timer\n");
 							refresh_count++;
 							enemy_count++;
 							enemy_refresh++;
@@ -911,9 +926,16 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 								if ( createdEnemies  < total_enemies )
 								{
 										createEnemy();
-										enemy_count = 0;
+										aliveEnemies ++;
+
 								}
-								//else game_over = 1;
+								else
+								{
+									if (aliveEnemies == 0) game_over = 1;
+
+								}
+								enemy_count = 0;
+
 							}
 							if(enemy_refresh == 50)
 							{
@@ -936,7 +958,7 @@ int jogo(int _irq_set, int _ipc_status, message _msg){
 	insertNome(jogador1, _irq_set, _ipc_status, _msg);
 
 	//printf("Saiu do Ciclo\n");
-	timer_unsubscribe_int();
+
 	//printf("Fez unsubscribe ao timer\n");
 	//kbc_unsubscribe_int();
 	//printf("Fez unsubscribe ao KBC\n");

@@ -75,6 +75,7 @@ int main(){
 
 	vg_init(0x105);
 	irq_set = kbc_subscribe_int();
+	timer_subscribe_int();
 
 	drawMenu(0);
 	drawCursor(option,0);
@@ -151,6 +152,7 @@ int main(){
 		}
 	}
 	kbc_unsubscribe_int();
+	timer_unsubscribe_int();
 	vg_exit();
 	return 0;
 
