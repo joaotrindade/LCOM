@@ -5,6 +5,11 @@
 #define Y_PONTUACAO 520
 #define Y_DATA 620
 #define SMALL_CHAR_WIDTH 22
+
+
+
+
+
 void print_data(char dia[], char mes[], char ano[], char hora[], char minuto[], int x_pos, int y_pos)
 {
 

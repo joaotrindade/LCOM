@@ -9,6 +9,7 @@
 //int test_conf();
 int test_date();
 int test_int();
+/** @brief Devolve a data do sistema para as variavel de argumento */
 void get_data(long int* dia, long int* mes, long int* ano, long int* hora, long int* minuto);
 //void get_data(long int &dia, long int &mes, long int &ano, long int &hora, long int &minuto);
 

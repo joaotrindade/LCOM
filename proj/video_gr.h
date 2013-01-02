@@ -18,7 +18,7 @@
  * @param mode 16-bit VBE mode to set
  * @return Virtual address VRAM was mapped to. NULL, upon failure.
  */
-void *vg_init(unsigned short mode);
+void * vg_init(unsigned long mode);
 
 /**
  * @brief Fills the screen with the input color
@@ -75,6 +75,16 @@ int vg_draw_line(unsigned long xi, unsigned long yi,
  * 
  * @return 0 upon success, non-zero upon failure
  */
+
+/** @brief Desenha a pontuacao  @param Valor da Pontuacao @param Coordenada X @param Coordenada Y @param Tamanho 1 - Pequeno, 0 - Grande */
+void drawPontuacao(int valor,int x_pos, int y_pos, int small);
+/** @brief Desenha um numero no ecra @param Algarismo a Imprimir @param Coordenada X @param Coordenada Y @Apagar(1) ou Escrever(0) @param Tamanho 1 - Pequeno, 0 - Grande */
+void drawNumber(int numero, int x_pos, int y_pos, int erase, int small);
+/** @brief Desenha uma letra no ecra @param Letra a Imprimir @param Coordenada X @param Coordenada Y @Apagar(1) ou Escrever(0)  */
+void drawLetter(char letra, int x_pos, int y_pos, int erase);
+/** @brief Desenha o user Interface @param ID da seccao. Inserir Nome(0) @param Coordenada X @param Coordenada Y @Apagar(1) ou Escrever(0)   */
+void drawInterface(int numero_id, int x_pos, int y_pos, int erase);
+
 int vg_exit(void);
 
  /** @} end of video_gr */

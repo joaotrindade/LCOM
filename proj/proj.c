@@ -13,7 +13,7 @@ int spaceship_position;
 int last_missile_index, last_enemy_index, total_enemies ;
 int aliveEnemies = 0;
 int createdEnemies = 0;
-int total_enemy_positions[N_MAX_INIMIGOS]={0,0,100,200,300,400,500,100,400,500,450,300,400,120,280,400,500,0,300,100,0,500,100,400,200,300,0,500,150,350,200,0,500,200,400,300,150,0,400,150,0,220,400,260,500,0, 500, 400, 200, 0, 300};
+int total_enemy_positions[N_MAX_INIMIGOS]={0,0,100,200,300,400,500,100,400,500,450,300,400,120,280,400,500,0,300,100,0,500,100,400,200,300,0,500,150,350,200,0,500,200,400,300,150,0,400,150,0,220,400,260,500,0, 500, 400, 200, 0};
 int enemy_positions[N_MAX_INIMIGOS];
 int game_over = 0;
 //int enemy_height = 100;
@@ -29,6 +29,8 @@ enemy vetor_inimigos[N_MAX_INIMIGOS];
 player_score highscores[50];
 int last_highscore = 0;
 int lowestHighscore = 0;
+
+
 
 void ordenaHighScores(player_score arrayResultados[])
 {
@@ -47,6 +49,7 @@ void ordenaHighScores(player_score arrayResultados[])
 		}
 	}
 }
+
 
 
 void writeHighScores(player_score arrayResultados[])
@@ -363,66 +366,6 @@ void insertNome(player_score jogador, int _irq_set, int _ipc_status, message _ms
 
 
 
-
-
-void drawMainShip(int verticalPos, int erase)
-{
-	// ERASE : 1 APAGA
-	int width, height, x, y;
-	char *spaceship_map;
-	spaceship_map = (char*)read_xpm(spaceship, &width, &height);
-
-		for(x = verticalPos; x < height+verticalPos ; x++)
-		{
-			for(y = 0; y <width  ; y++, spaceship_map++)
-			{
-				if(erase == 0) vg_set_pixel(y,x,*spaceship_map);
-				else vg_set_pixel(y,x,0x00);
-			}
-		}
-
-}
-
-void drawMissile(missile input, int erase)
-{
-	// ERASE : 1 APAGA
-	int width, height, x, y;
-	char *missile_map;
-	//printf("entrou");
-	missile_map =  (char*)read_xpm(missil2, &width, &height);
-	//printf("saiu");
-
-	//printf("vertical: %d, horizontal: %d \n \n", input.verticalPos, input.horizontalPos);
-	for(x = input.verticalPos; x < height + input.verticalPos ; x++)
-	{
-		for(y = input.horizontalPos; y <width+input.horizontalPos; y++, missile_map++)
-		{
-			if(erase == 0) vg_set_pixel(y,x,*missile_map);
-			else vg_set_pixel(y,x,0x00);
-			//printf("entrou\n");
-		}
-	}
-	//printf("X: %d | Y:%d \n",x,y);
-}
-
-void drawEnemy(enemy input, int erase)
-{
-	// ERASE : 1 APAGA
-	int width, height, x, y;
-	char *enemy;
-	enemy = (char*)read_xpm(enemy_pix, &width, &height);
-
-	for(x = input.verticalPos; x < height + input.verticalPos ; x++)
-		{
-			for(y = input.horizontalPos; y <width+input.horizontalPos; y++, enemy++)
-			{
-				if(erase == 0) vg_set_pixel(y,x,*enemy);
-				else vg_set_pixel(y,x,0x00);
-				//printf("entrou\n");
-			}
-		}
-}
-
 void checkColisao(missile vetor_misseis[]){
 	int i, j,k;
 	int found = 0;
@@ -481,231 +424,7 @@ void checkColisao(missile vetor_misseis[]){
 	//printf("Last Enemy Index Final : %d\n",last_enemy_index );
 }
 
-void drawNumber(int numero, int x_pos, int y_pos, int erase, int small)
-{
-	//ERASE 1: Apaga
-	//SMALL 1: NUMERO PEQUENO
-	int width, height, x, y;
-	char *imagem;
-	//printf("Numero : %d \n",numero);
-	switch(numero)
-	{
-		case 0: {
-					if(small == 1) imagem = (char*)read_xpm(zero_small, &width, &height);
-					else imagem = (char*)read_xpm(zero, &width, &height);
-				}
-				break;
 
-		case 1: {
-					if(small == 1) imagem = (char*)read_xpm(one_small, &width, &height);
-					else imagem = (char*)read_xpm(one, &width, &height);
-				}
-				break;
-
-		case 2: {
-					if(small == 1) imagem = (char*)read_xpm(two_small, &width, &height);
-					else imagem = (char*)read_xpm(two, &width, &height);
-				}
-				break;
-
-		case 3: {
-					if(small == 1) imagem = (char*)read_xpm(three_small, &width, &height);
-					else imagem = (char*)read_xpm(three, &width, &height);
-				}
-				break;
-
-		case 4: {
-					if(small == 1) imagem = (char*)read_xpm(four_small, &width, &height);
-					else imagem = (char*)read_xpm(four, &width, &height);
-				}
-				break;
-
-		case 5: {
-					if(small == 1) imagem = (char*)read_xpm(five_small, &width, &height);
-					else imagem = (char*)read_xpm(five, &width, &height);
-				}
-				break;
-
-		case 6: {
-				if(small == 1) imagem = (char*)read_xpm(six_small, &width, &height);
-				else imagem = (char*)read_xpm(six, &width, &height);
-				}
-				break;
-
-		case 7: {
-					if(small == 1) imagem = (char*)read_xpm(seven_small, &width, &height);
-					else imagem = (char*)read_xpm(seven, &width, &height);
-				}
-				break;
-
-		case 8: {
-					if(small == 1) imagem = (char*)read_xpm(eight_small, &width, &height);
-					else imagem = (char*)read_xpm(eight, &width, &height);
-				}
-				break;
-
-		case 9: {
-					if(small == 1) imagem = (char*)read_xpm(nine_small, &width, &height);
-					else imagem = (char*)read_xpm(nine, &width, &height);
-				}
-				break;
-
-		default: imagem = (char*)read_xpm(zero, &width, &height);
-				break;
-	}
-	//printf("Passou o Switch\n");
-	for(x = x_pos; x < height + x_pos ; x++)
-	{
-		//printf("x: %d",x);
-		for(y = y_pos; y <width + y_pos; y++, imagem++)
-		{
-			//printf("y: %d \n",y);
-			if(erase == 0) vg_set_pixel(y,x,*imagem);
-			else vg_set_pixel(y,x,0x00);
-			//printf("entrou\n");
-		}
-	}
-
-}
-
-void drawLetter(char letra, int x_pos, int y_pos, int erase)
-{
-	//ERASE 1: Apaga
-	int width, height, x, y;
-	char *imagem;
-	//printf("Numero : %d \n",numero);
-	switch(letra)
-	{
-		case 'A': imagem = (char*)read_xpm(letra_A, &width, &height);
-				break;
-		case 'B': imagem = (char*)read_xpm(letra_B, &width, &height);
-				break;
-		case 'C': imagem = (char*)read_xpm(letra_C, &width, &height);
-				break;
-		case 'D': imagem = (char*)read_xpm(letra_D, &width, &height);
-				break;
-		case 'E': imagem = (char*)read_xpm(letra_E, &width, &height);
-				break;
-		case 'F': imagem = (char*)read_xpm(letra_F, &width, &height);
-				break;
-		case 'G': imagem = (char*)read_xpm(letra_G, &width, &height);
-				break;
-		case 'H': imagem = (char*)read_xpm(letra_H, &width, &height);
-				break;
-		case 'I': imagem = (char*)read_xpm(letra_I, &width, &height);
-				break;
-		case 'J': imagem = (char*)read_xpm(letra_J, &width, &height);
-				break;
-		case 'K': imagem = (char*)read_xpm(letra_K, &width, &height);
-				break;
-		case 'L': imagem = (char*)read_xpm(letra_L, &width, &height);
-				break;
-		case 'M': imagem = (char*)read_xpm(letra_M, &width, &height);
-				break;
-		case 'N': imagem = (char*)read_xpm(letra_N, &width, &height);
-				break;
-		case 'O': imagem = (char*)read_xpm(letra_O, &width, &height);
-				break;
-		case 'P': imagem = (char*)read_xpm(letra_P, &width, &height);
-				break;
-		case 'Q': imagem = (char*)read_xpm(letra_Q, &width, &height);
-				break;
-		case 'R': imagem = (char*)read_xpm(letra_R, &width, &height);
-				break;
-		case 'S': imagem = (char*)read_xpm(letra_S, &width, &height);
-				break;
-		case 'T': imagem = (char*)read_xpm(letra_T, &width, &height);
-				break;
-		case 'V': imagem = (char*)read_xpm(letra_V, &width, &height);
-				break;
-		case 'U': imagem = (char*)read_xpm(letra_U, &width, &height);
-				break;
-		case 'W': imagem = (char*)read_xpm(letra_W, &width, &height);
-				break;
-		case 'X': imagem = (char*)read_xpm(letra_X, &width, &height);
-				break;
-		case 'Y': imagem = (char*)read_xpm(letra_Y, &width, &height);
-				break;
-		case 'Z': imagem = (char*)read_xpm(letra_Z, &width, &height);
-				break;
-		default: imagem = (char*)read_xpm(letra_A, &width, &height);
-				break;
-	}
-	//printf("Passou o Switch\n");
-	for(x = x_pos; x < height + x_pos ; x++)
-	{
-		//printf("x: %d",x);
-		for(y = y_pos; y <width + y_pos; y++, imagem++)
-		{
-			//printf("y: %d \n",y);
-			if(erase == 0) vg_set_pixel(y,x,*imagem);
-			else vg_set_pixel(y,x,0x00);
-			//printf("entrou\n");
-		}
-	}
-
-}
-
-void drawInterface(int numero_id, int x_pos, int y_pos, int erase)
-{
-	//ERASE 1: Apaga
-	int width, height, x, y;
-	char *imagem;
-	switch(numero_id)
-	{
-		case 0: imagem = (char*)read_xpm(insert_name, &width, &height);
-				break;
-
-	}
-	for(x = x_pos; x < height + x_pos ; x++)
-	{
-		//printf("x: %d",x);
-		for(y = y_pos; y <width + y_pos; y++, imagem++)
-		{
-			//printf("y: %d \n",y);
-			if(erase == 0) vg_set_pixel(y,x,*imagem);
-			else vg_set_pixel(y,x,0x00);
-			//printf("entrou\n");
-		}
-	}
-}
-
-void drawPontuacao(int valor,int x_pos, int y_pos, int small)
-{
-	//6 Algarismos- y: 590
-	// Primeiro algarismo x: 780
-	//	824, 868, 912, 956, 1000
-	int largura = 44;
-	int aux, temp, n_algarismos;
-	int last_x_pos = x_pos;
-	int last_y_pos = y_pos;
-	aux = valor;
-	n_algarismos = 0;
-
-	if(small = 1) largura = 20;
-
-	while(aux >= 10)
-	{
-		temp = aux%10;
-		aux = aux/10;
-		//printf("Temp: %d | aux: %d | last_y_pos: %d | last_x_pos: %d | \n",temp,aux,last_y_pos,last_x_pos);
-		drawNumber(temp, last_y_pos, last_x_pos, 0, small );
-		last_x_pos = last_x_pos - largura - 2; // 2 de espacamento
-
-
-		n_algarismos++;
-	}
-	drawNumber(aux, last_y_pos, last_x_pos, 0, small );
-	last_x_pos = last_x_pos - largura - 2;
-	n_algarismos++;
-
-	while(n_algarismos < 6)
-	{
-		drawNumber(0, last_y_pos, last_x_pos, 0,small );
-		last_x_pos = last_x_pos - largura  - 2; // 2 de espacamento
-		n_algarismos++;
-	}
-}
 
 int actualizaMisseis(missile vetor_misseis[]){
 	int i,j, removed;
